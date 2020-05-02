@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2020 cmock
+ * Copyright (c) 2020-2020 msoodb.org
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
