@@ -34,7 +34,8 @@
 #define _PROGRAM_URL        "https://msoodb.org/cli"
 
 #define EXIT_NONE -1
-#define IN_RANGE(port) ((atoi(port) > 1000 && atoi(port) < 65000))
+#define IN_RANGE(port) ((atoi((port)) > 10000 && atoi((port)) < 65535))
+
 typedef struct _command
 {
 	char *config;
@@ -144,7 +145,8 @@ int main(int argc, char *argv[])
 	int option_index;
 	int argument_index;
 
-	option_value = option_index = 0;
+	option_value = 0;
+	option_index = 0;
 	argument_index = 0;
 	
 	if (argc == 1)
@@ -229,11 +231,11 @@ int main(int argc, char *argv[])
 		vbprintf("%s %s\n", "Output type is", command.output);
 	/* end of options */	
 	
-
+	/* main */
 	int i = 0;
 	while (i++ < 5) {
 		sleep(1);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
