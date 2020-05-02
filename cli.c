@@ -71,12 +71,12 @@ void help(int status)
 	printf("Usage: %s [OPTIONS] SOURCE PORT\n", _PROGRAM_NAME);
 	printf("%s\n", _PROGRAM_DESC);
 	printf("\nOptions:\n");
-	printf("   -c, --config file    Read config from the config file.\n");
-	printf("   -v, --verbose        Explain what is being done.\n");
-	printf("       --color          Haracteristic of visual perception described.\n");
-	printf("       --output=TYPE    Output data type, text, json, table.\n");
-	printf("   -h, --help           Display this help and exit.\n");
-	printf("       --version        Output version information and exit.\n");	
+	printf("   -c, --config=FILENAME   Read config from the config file.\n");
+	printf("   -v, --verbose           Explain what is being done.\n");
+	printf("       --color             Haracteristic of visual perception described.\n");
+	printf("       --output=TYPE       Output data type, text, json, table.\n");
+	printf("   -h, --help              Display this help and exit.\n");
+	printf("       --version           Output version information and exit.\n");	
 	printf("%s %s%s\n", "See the", _PROGRAM_NAME,
 	       "(1) manpage for full options, descriptions and usage examples.");
 	printf("\n");
@@ -112,9 +112,11 @@ void terminate()
 
 int main(int argc, char *argv[])
 {
-	/* program variables */
+	/* arguments */
 	int port;
 	char *source;
+	
+	/* options */
 	char *config;
 	char *color;
 	char *output;
@@ -177,13 +179,25 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* arguments */
 	if (port == -1) {
 		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
-		printf("%s%s %s\n", "Try '", _PROGRAM_NAME, "--help' for more information.");
+		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
+		       "--help' for more information.");
 		exit(EXIT_FAILURE);
 	}
 	vbprintf("%s %d\n", "Port is set to", port);
 
+	if (port == -1) {
+		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
+		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
+		       "--help' for more information.");
+		exit(EXIT_FAILURE);
+	}
+	vbprintf("%s %d\n", "Port is set to", port);
+	/* end of arguments */
+
+	
 	if (config != NULL) {
 		vbprintf("%s %s\n", "Config file is", config);
 	}
@@ -194,6 +208,10 @@ int main(int argc, char *argv[])
 
 	if (output != NULL) {
 		vbprintf("%s %s\n", "Output type is", output);
+	}
+
+	if (source != NULL) {
+		vbprintf("%s %s\n", "Source file is", source);
 	}
 	
 
