@@ -36,7 +36,7 @@
 #define EXIT_NONE -1
 #define IN_RANGE(port) ((atoi((port)) > 10000 && atoi((port)) < 65535))
 
-typedef struct _command
+struct _command
 {
 	char *config;
 	bool verbose_flag;
@@ -44,9 +44,9 @@ typedef struct _command
 	char *output;	
 	char *SOURCE;
 	int PORT;	
-} COMMAND;
+};
 
-COMMAND command;
+struct _command command;
 
 #define COLOR_LONG_OPT      1000
 #define OUTPUT_LONG_OPT     1100
