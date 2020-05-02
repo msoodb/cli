@@ -103,7 +103,8 @@ void help(int status)
 	       "(1) manpage for full options, descriptions and usage examples.");
 	printf("\n");
 
-	if (status != EXIT_NONE) exit(status);
+	if (status != EXIT_NONE)
+		exit(status);
 }
 
 void version(void)
