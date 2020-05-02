@@ -5,10 +5,11 @@ C command line application template.
 Command line arguments and options management
 
 ## serever.c
-Cocket server template.
+Socket server template.
 
 ## Makefile
 Containing a set of directives used by a make build automation tool 
 
 # build
 cc -o cli cli.c
+cc -o server server.c
