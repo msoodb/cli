@@ -34,10 +34,9 @@
 #define _PROGRAM_URL        "https://msoodb.org/cli"
 
 #define EXIT_NONE -1
-
+#define IN_RANGE(port) ((atoi(port) > 1000 && atoi(port) < 65000))
 typedef struct _command
 {
-	bool config_flag;
 	char *config;
 	bool verbose_flag;
 	char *color;
@@ -62,13 +61,14 @@ static struct option const long_options[] = {
 	{NULL, 0, 0, 0}
 };
 
+
+
 void init_command()
 {
-	command.config_flag = false;
 	command.config = NULL;
 	command.verbose_flag = false;
-	command.color = NULL;
-	command.output = NULL;
+	command.color = "RED";
+	command.output = "json";
 	command.SOURCE = NULL;
 	command.PORT = -1;
 }
@@ -133,11 +133,9 @@ void terminate()
 
 int main(int argc, char *argv[])
 {
-	/* arguments */	
-	char *source;
+	/*char *source;
 	int port;
 	
-	/* options */
 	char *config;
 	char *color;
 	char *output;
@@ -146,7 +144,7 @@ int main(int argc, char *argv[])
 	source = NULL;
 	config = NULL;
 	color = NULL;
-	output = NULL;
+	output = NULL;*/
 		
 	/* sign handler and register terminate function at exit */
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
@@ -154,36 +152,39 @@ int main(int argc, char *argv[])
 	atexit(terminate);
 
 	/* cli menu section */
-	int value, option_index;
-	value = option_index = 0;
+	int option_value;
+	int option_index;
+	int argument_index;
+
+	option_value = option_index = 0;
+	argument_index = 0;
 	
 	if (argc == 1)
 		help(EXIT_FAILURE);
 
 	init_command();
-		
+				
 	while (1) {
-		value = option_index = 0;
 		
-		value = getopt_long(argc, argv, "-:hvc:", long_options, &option_index);
-		if (value == -1)
+		option_value = getopt_long(argc, argv, "-:hvc:", long_options, &option_index);
+		if (option_value == -1)
 			break;
 
-		switch (value) {
+		switch (option_value) {
 		case 'c':
 			if (optarg)
-				config = strdup(optarg);
+				command.config = strdup(optarg);
 			break;
 		case 'v':
 			command.verbose_flag = true;
 			break;
 		case COLOR_LONG_OPT:
 			if (optarg)
-				color = strdup(optarg);
+				command.color = strdup(optarg);
 			break;
 		case OUTPUT_LONG_OPT:
 			if (optarg)
-				output = strdup(optarg);
+				command.output = strdup(optarg);
 			break;
 		case 'h':
 			help(EXIT_SUCCESS);
@@ -192,10 +193,13 @@ int main(int argc, char *argv[])
 			version();
 			return EXIT_SUCCESS;
 		case 1:
-			printf("%s\n", optarg);
-			if (atoi(optarg) > 1000 && atoi(optarg) < 65000) {
-				port = atoi(optarg); 
+			if (argument_index == 0 && optarg) {
+				command.SOURCE = strdup(optarg);				
 			}
+			if (argument_index == 1 && IN_RANGE(optarg)) {
+				command.PORT = atoi(optarg); 
+			}
+			argument_index++;
 			break;		
 		case '?':
 			help(EXIT_FAILURE);
@@ -208,41 +212,33 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("%d %d\n", argc, optind);
-	for(; optind < argc; optind++){      
-		printf("extra arguments: %s\n", argv[optind]);  
-	} 
-	
 	/* arguments */
-	if (port == -1) {
+	if (command.PORT == -1) {
 		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
 		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
 		       "--help' for more information.");
 		exit(EXIT_FAILURE);
+	}	
+	if (command.SOURCE == NULL){
+		printf("%s: %s\n", _PROGRAM_NAME, "missing SOURCE file");
+		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
+		       "--help' for more information.");
+		exit(EXIT_FAILURE);
 	}
-	vbprintf("%s %d\n", "Port is set to", port);
 
-	if (port == -1) {
-		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
-		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
-		       "--help' for more information.");
-		exit(EXIT_FAILURE);
-	}
-	vbprintf("%s %d\n", "Port is set to", port);
+	vbprintf("%s %d\n", "Port is set to", command.PORT);
+	vbprintf("%s %s\n", "Source file is", command.SOURCE);
 	/* end of arguments */
 
 	/* options */
-	if (config != NULL)
-		vbprintf("%s %s\n", "Config file is", config);
+	if (command.config != NULL)
+		vbprintf("%s %s\n", "Config file is", command.config);
 	
-	if (color != NULL)
-		vbprintf("%s %s\n", "Color is", color);
+	if (command.color != NULL)
+		vbprintf("%s %s\n", "Color is",command.color);
 	
-	if (output != NULL)
-		vbprintf("%s %s\n", "Output type is", output);
-	
-	if (source != NULL)
-		vbprintf("%s %s\n", "Source file is", source);
+	if (command.output != NULL)
+		vbprintf("%s %s\n", "Output type is", command.output);
 	/* end of options */	
 	
 
