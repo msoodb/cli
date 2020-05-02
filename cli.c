@@ -35,29 +35,50 @@
 
 #define EXIT_NONE -1
 
-/* True if the --verbose or -v in option.  */
-static bool f_verbose = false;
+typedef struct _command
+{
+	bool config_flag;
+	char *config;
+	bool verbose_flag;
+	char *color;
+	char *output;	
+	char *SOURCE;
+	int PORT;	
+} COMMAND;
 
-#define COLOR_OPT      1000
-#define OUTPUT_OPT     1100
-#define VERSION_OPT    1600
+COMMAND command;
+
+#define COLOR_LONG_OPT      1000
+#define OUTPUT_LONG_OPT     1100
+#define VERSION_LONG_OPT    1600
 
 static struct option const long_options[] = {		
-	{"config",      required_argument,  0,            'c'},
-	{"verbose",     no_argument,        0,            'v'},
-	{"color",       optional_argument,  0,      COLOR_OPT},
-	{"output",      required_argument,  0,     OUTPUT_OPT},
-	{"help",        no_argument,        0,            'h'},
-	{"version",     no_argument,        0,    VERSION_OPT},
+	{"config",      required_argument,  0,                 'c'},
+	{"verbose",     no_argument,        0,                 'v'},
+	{"color",       optional_argument,  0,      COLOR_LONG_OPT},
+	{"output",      required_argument,  0,     OUTPUT_LONG_OPT},
+	{"help",        no_argument,        0,                 'h'},
+	{"version",     no_argument,        0,    VERSION_LONG_OPT},
 	{NULL, 0, 0, 0}
 };
+
+void init_command()
+{
+	command.config_flag = false;
+	command.config = NULL;
+	command.verbose_flag = false;
+	command.color = NULL;
+	command.output = NULL;
+	command.SOURCE = NULL;
+	command.PORT = -1;
+}
 
 int vbprintf(const char *fmt, ...)
 {
 	va_list ap;
 	int res = 0;
 
-	if (f_verbose) {
+	if (command.verbose_flag) {
 		va_start(ap, fmt);
 		res = vprintf(fmt, ap);
 		va_end(ap);
@@ -99,7 +120,7 @@ void version(void)
 void sig_handler(int signo)
 {
 	if (signo == SIGINT){
-		printf("\n%s\n", "Received SIGINT");
+		vbprintf("\n%s\n", "Received SIGINT");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -112,9 +133,9 @@ void terminate()
 
 int main(int argc, char *argv[])
 {
-	/* arguments */
-	int port;
+	/* arguments */	
 	char *source;
+	int port;
 	
 	/* options */
 	char *config;
@@ -134,32 +155,40 @@ int main(int argc, char *argv[])
 
 	/* cli menu section */
 	int value, option_index;
+	value = option_index = 0;
 	
-	if (argc == 1) help(EXIT_FAILURE);
+	if (argc == 1)
+		help(EXIT_FAILURE);
+
+	init_command();
 		
 	while (1) {
 		value = option_index = 0;
 		
 		value = getopt_long(argc, argv, "-:hvc:", long_options, &option_index);
-		if (value == -1) break;
+		if (value == -1)
+			break;
 
 		switch (value) {
 		case 'c':
-			if (optarg) config = strdup(optarg);
+			if (optarg)
+				config = strdup(optarg);
 			break;
 		case 'v':
-			f_verbose = true;
+			command.verbose_flag = true;
 			break;
-		case COLOR_OPT:
-			if (optarg) color = strdup(optarg);
+		case COLOR_LONG_OPT:
+			if (optarg)
+				color = strdup(optarg);
 			break;
-		case OUTPUT_OPT:
-			if (optarg) output = strdup(optarg);
+		case OUTPUT_LONG_OPT:
+			if (optarg)
+				output = strdup(optarg);
 			break;
 		case 'h':
 			help(EXIT_SUCCESS);
 			break;
-		case VERSION_OPT:
+		case VERSION_LONG_OPT:
 			version();
 			return EXIT_SUCCESS;
 		case 1:
@@ -179,6 +208,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	printf("%d %d\n", argc, optind);
+	for(; optind < argc; optind++){      
+		printf("extra arguments: %s\n", argv[optind]);  
+	} 
+	
 	/* arguments */
 	if (port == -1) {
 		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
@@ -197,22 +231,19 @@ int main(int argc, char *argv[])
 	vbprintf("%s %d\n", "Port is set to", port);
 	/* end of arguments */
 
-	
-	if (config != NULL) {
+	/* options */
+	if (config != NULL)
 		vbprintf("%s %s\n", "Config file is", config);
-	}
-
-	if (color != NULL) {
+	
+	if (color != NULL)
 		vbprintf("%s %s\n", "Color is", color);
-	}
-
-	if (output != NULL) {
+	
+	if (output != NULL)
 		vbprintf("%s %s\n", "Output type is", output);
-	}
-
-	if (source != NULL) {
+	
+	if (source != NULL)
 		vbprintf("%s %s\n", "Source file is", source);
-	}
+	/* end of options */	
 	
 
 	int i = 0;
