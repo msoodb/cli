@@ -133,18 +133,6 @@ void terminate()
 
 int main(int argc, char *argv[])
 {
-	/*char *source;
-	int port;
-	
-	char *config;
-	char *color;
-	char *output;
-	
-	port = -1;
-	source = NULL;
-	config = NULL;
-	color = NULL;
-	output = NULL;*/
 		
 	/* sign handler and register terminate function at exit */
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
