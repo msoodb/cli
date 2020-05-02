@@ -6,7 +6,7 @@ OBJ = $(SRC:.c=.o)
 TARGET = cli
 
 $(TARGET): $(OBJ)
-#	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: clean
 
