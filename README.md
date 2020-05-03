@@ -7,6 +7,9 @@ Command line arguments and options management.
 ## serever.c
 Socket server template.
 
+## client.c
+Socket client template.
+
 ## list.c
 Simple doubly linked list implementation.
 
@@ -19,5 +22,6 @@ a make build automation tool.
 ```
 cc -o cli cli.c
 cc -o server server.c
+cc -o client client.c
 cc -o list list.c
 ```
