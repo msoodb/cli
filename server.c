@@ -39,54 +39,71 @@ int main(int argc, char *argv[])
 {	
 	int sockfd;
 	int sock;
+	
 	int client_len;
 	int port;
 
-	struct sockaddr_in client;	
+	struct sockaddr_in server;
+	struct sockaddr_in client;
 
-	char *send_buffer;
+	char *client_ip;
+	int client_port;
+
 	char recieve_buffer[_BUFFER_SIZE] = {0};
+	char *send_buffer;
 
-	    
+	
 	sockfd = 0;
 	sock = 0;
 	port = 4545;
 
+	/* Create socket */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1)
 		exit (EXIT_FAILURE);	
 
+	/* Reuse port */
 	int reuse = 1;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
 		exit (EXIT_FAILURE);
 
-	client.sin_family = AF_INET;    
-	client.sin_addr.s_addr = htonl(INADDR_ANY);
-	client.sin_port = htons(port);
-	if (bind(sockfd, (struct sockaddr *)&client, sizeof(client)) < 0)
+	/* Create socket */
+	server.sin_family = AF_INET;    
+	server.sin_addr.s_addr = htonl(INADDR_ANY);
+	server.sin_port = htons(port);
+	if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
 		exit (EXIT_FAILURE);
-	
+
+	/* Listen */
 	listen(sockfd, _MAXIMUM_CLIENT);
+	
 	while(1)
-	{		
+	{
+		/* Accept and incoming connection */
 		client_len = sizeof(struct sockaddr_in);		
 		sock = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&client_len);
 		if (sock < 0)
 			exit (EXIT_FAILURE);		
 
+		client_ip = inet_ntoa(client.sin_addr);
+		client_port = ntohs(client.sin_port);		
+		
+		/* Recieve data from client */
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0)
 			break;		
 
+		/* Send data to client */
 		send_buffer = "hello, socket server.";
 		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0)
 			exit (EXIT_FAILURE);		
 
+		/* Close socket */
 		close(sock);
 		shutdown(sock, 0);
 		shutdown(sock, 1);
 		shutdown(sock, 2);
 			
-		sleep(1);
+		//sleep(1);
 	}
 
 	return EXIT_SUCCESS;
