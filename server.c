@@ -1,5 +1,5 @@
  /*.
- * Copyright (c) 2020-2020 klg
+ * Copyright (c) 2020-2020 msoodb.org
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -37,52 +37,49 @@
 
 int main(int argc, char *argv[])
 {	
-	int sockfd, sock;
+	int sockfd;
+	int sock;
 	int client_len;
+	int port;
 
 	struct sockaddr_in client;	
 
 	char *send_buffer;
 	char recieve_buffer[_BUFFER_SIZE] = {0};
 
-	int port;
-    
-	sockfd = sock = 0;
+	    
+	sockfd = 0;
+	sock = 0;
 	port = 4545;
 
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1){
-		exit (EXIT_FAILURE);
-	}
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1)
+		exit (EXIT_FAILURE);	
 
 	int reuse = 1;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
-		perror("setsockopt(SO_REUSEADDR) failed");
+		exit (EXIT_FAILURE);
 
 	client.sin_family = AF_INET;    
 	client.sin_addr.s_addr = htonl(INADDR_ANY);
 	client.sin_port = htons(port);
-	if (bind(sockfd, (struct sockaddr *)&client, sizeof(client)) < 0){
+	if (bind(sockfd, (struct sockaddr *)&client, sizeof(client)) < 0)
 		exit (EXIT_FAILURE);
-	}
 	
 	listen(sockfd, _MAXIMUM_CLIENT);
 	while(1)
 	{		
 		client_len = sizeof(struct sockaddr_in);		
 		sock = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&client_len);
-		if (sock < 0){
-			exit (EXIT_FAILURE);
-		}
+		if (sock < 0)
+			exit (EXIT_FAILURE);		
 
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
-		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0){
-			break;
-		}
+		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0)
+			break;		
 
-		send_buffer = "hello";
-		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0){
-			exit (EXIT_FAILURE);
-		}
+		send_buffer = "hello, socket server.";
+		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0)
+			exit (EXIT_FAILURE);		
 
 		close(sock);
 		shutdown(sock, 0);
@@ -92,5 +89,5 @@ int main(int argc, char *argv[])
 		sleep(1);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
