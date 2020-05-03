@@ -7,6 +7,9 @@ Command line arguments and options management.
 ## serever.c
 Socket server template.
 
+## list.c
+Simple doubly linked list implementation.
+
 ## Makefile
 Containing a set of directives used by \
 a make build automation tool.
@@ -16,4 +19,5 @@ a make build automation tool.
 ```
 cc -o cli cli.c
 cc -o server server.c
+cc -o list list.c
 ```
