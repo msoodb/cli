@@ -271,5 +271,5 @@ int main(int argc, char *argv[])
 	
 	print(list);
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
