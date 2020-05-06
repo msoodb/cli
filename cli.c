@@ -25,6 +25,7 @@
 #include <unistd.h>          /* sleep    */
 #include <signal.h>          /* SIGINT   */  
 #include <stdarg.h>          /* va_start */
+#include <sys/stat.h>        /* state    */
 
 /* The official name of this program (e.g., no 'g' prefix).  */
 #define _PROGRAM_NAME       "cli"
@@ -34,7 +35,7 @@
 #define _PROGRAM_URL        "https://msoodb.org/cli"
 
 #define EXIT_NONE -1
-#define IN_RANGE(port) ((atoi((port)) > 10000 && atoi((port)) < 65535))
+#define IN_RANGE(port) ((atoi((port)) > 1000 && atoi((port)) < 65535))
 
 struct _command
 {
@@ -117,6 +118,18 @@ void version(void)
 	printf("%s\n", "There is NO WARRANTY, to the extent permitted by law.");
 	printf("\n");
 	printf("%s %s.\n", "Written by", _PROGRAM_AUTHORS);
+}
+
+int file_exists(const char *path)
+{
+    struct stat stats;
+        
+    stat(path, &stats);
+            
+    if (stats.st_mode & R_OK)
+        return 1;
+
+    return 0;
 }
 
 void sig_handler(int signo)
@@ -204,18 +217,22 @@ int main(int argc, char *argv[])
 	}
 
 	/* arguments */
-	if (command.PORT == -1) {
-		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
-		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
-		       "--help' for more information.");
-		exit(EXIT_FAILURE);
-	}	
 	if (command.SOURCE == NULL){
 		printf("%s: %s\n", _PROGRAM_NAME, "missing SOURCE file");
 		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
 		       "--help' for more information.");
 		exit(EXIT_FAILURE);
 	}
+	if (file_exists(command.SOURCE) == 0) {
+		printf("%s%s%s\n", "cannot stat '", command.SOURCE, "': No such file or directory");
+		exit(EXIT_FAILURE);
+	}
+	if (command.PORT == -1) {
+		printf("%s: %s\n", _PROGRAM_NAME, "missing PORT number");
+		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
+		       "--help' for more information.");
+		exit(EXIT_FAILURE);
+	}	
 
 	vbprintf("%s %d\n", "Port is set to", command.PORT);
 	vbprintf("%s %s\n", "Source file is", command.SOURCE);
