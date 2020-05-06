@@ -1,27 +1,31 @@
-# cli
-C command line application template.
+# cli   
+C command line application template.                                                 
 
-## cli.c
-Command line arguments and options management.
+> cli
+> server
+> client
+> list
 
-## serever.c
+### cli.c            
+Command line arguments and options management.                                        
+
+### server.c         
 Socket server template.
 
-## client.c
+### client.c          
 Socket client template.
 
 ## list.c
 Simple doubly linked list implementation.
 
-## Makefile
-Containing a set of directives used by \
-a make build automation tool.
+### Makefile
+Containing a set of directives used by \   
+a make build automation tool.  
 
-
-# build
-```
-cc -o cli cli.c
-cc -o server server.c
-cc -o client client.c
-cc -o list list.c
+# build                 
+```sh                
+$ cc -o cli cli.c
+$ cc -o server server.c
+$ cc -o client client.c
+$ cc -o list list.c    
 ```
