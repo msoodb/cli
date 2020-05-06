@@ -57,6 +57,9 @@
   |    close()   |----------
   |______________|
 
+Ref: 
+ The Definitive Guide to Linux Network Programming.
+ Keir Davis, John W. Turner, and Nathan Yocom.
 */
 
 #define _BUFFER_SIZE 1024
