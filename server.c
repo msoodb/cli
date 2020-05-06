@@ -14,22 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <errno.h>
-#include <ctype.h>
 #include <unistd.h>
-#include <signal.h>
-#include <netdb.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/signal.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/ip_icmp.h>
 
 #define _BUFFER_SIZE 1024
 #define _MAXIMUM_CLIENT 99
