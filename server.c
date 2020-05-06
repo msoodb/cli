@@ -1,4 +1,4 @@
- /*.
+/*
  * Copyright (c) 2020-2020 msoodb.org
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -14,11 +14,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+
+/* 
+   ______________
+  |              |
+  |   socket()   |
+  |______________|
+         |
+   ______V_______
+  |              |
+  |    bind()    |
+  |______________|
+         |
+   ______V_______
+  |              |
+  |   listen()   |
+  |______________|
+         |
+   ______V_______
+  |              |
+  |   accept()   |<---------
+  |______________|          |
+         |                  |
+   ______V_______           |
+  |              |          |
+  |    read()    |<---      |
+  |______________|    |     |
+         |            |     |
+   ______V_______     |     |
+  |              |    |     |
+  |    write()   |----      |
+  |______________|          |
+         |                  |
+   ______V_______           |
+  |              |          |
+  |    close()   |----------
+  |______________|
+
+*/
 
 #define _BUFFER_SIZE 1024
 #define _MAXIMUM_CLIENT 99
@@ -34,11 +73,10 @@ int main(int argc, char *argv[])
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
-
 	char *client_ip;
 	int client_port;
 
-	char recieve_buffer[_BUFFER_SIZE] = {0};
+	char recieve_buffer[_BUFFER_SIZE];
 	char *send_buffer;
 
 	
@@ -46,53 +84,52 @@ int main(int argc, char *argv[])
 	sock = 0;
 	port = 4545;
 
-	/* Create socket */
+	/* socket */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1)
 		exit (EXIT_FAILURE);	
-
-	/* Reuse port */
+	
 	int reuse = 1;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
 		exit (EXIT_FAILURE);
 
-	/* Create socket */
+	/* bind */
 	server.sin_family = AF_INET;    
 	server.sin_addr.s_addr = htonl(INADDR_ANY);
 	server.sin_port = htons(port);
 	if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
 		exit (EXIT_FAILURE);
 
-	/* Listen */
+	/* listen */
 	listen(sockfd, _MAXIMUM_CLIENT);
 	
 	while(1)
 	{
-		/* Accept and incoming connection */
+		/* accept */
 		client_len = sizeof(struct sockaddr_in);		
 		sock = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&client_len);
 		if (sock < 0)
 			exit (EXIT_FAILURE);		
 
 		client_ip = inet_ntoa(client.sin_addr);
-		client_port = ntohs(client.sin_port);		
+		client_port = ntohs(client.sin_port);
+		printf("%s %d\n", client_ip, client_port);
 		
-		/* Recieve data from client */
+		/* read */
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0)
 			break;		
 
-		/* Send data to client */
+		/* write */
 		send_buffer = "hello, socket server.";
 		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0)
 			exit (EXIT_FAILURE);		
 
-		/* Close socket */
+		/* close */
 		close(sock);
 		shutdown(sock, 0);
 		shutdown(sock, 1);
 		shutdown(sock, 2);
 			
-		//sleep(1);
 	}
 
 	return EXIT_SUCCESS;
