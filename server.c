@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
 	char *send_buffer;
 
 	
-	sockfd = 0;
-	sock = 0;
+	sockfd = -1;
+	sock = -1;
 	port = 4545;
 
 	/* socket */
