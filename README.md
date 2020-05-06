@@ -1,10 +1,10 @@
 # cli   
 C command line application template.
 
-> cli\
-> server\
-> client\
-> list\
+> cli \
+> server \
+> client \
+> list \
 
 ### cli.c            
 Command line arguments and options management.                                        
