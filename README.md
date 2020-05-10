@@ -5,7 +5,8 @@ C command line application template.
 > server \
 > client \
 > list \
-> process
+> process \
+> thread
 
 
 ### cli.c            
@@ -22,6 +23,9 @@ Simple doubly linked list implementation.
 
 ## process.c
 Multi-Process implementation.
+
+## thread.c
+Multi-Thread implementation.
 
 ### Makefile
 Containing a set of directives used by \   
