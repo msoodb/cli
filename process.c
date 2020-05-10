@@ -53,18 +53,18 @@ int main(int argc, char *argv[])
 
 
 
-	count_print("Parent");
+	//count_print("Parent");
 
-	int child_status;
+	/*int child_status;
 	pid_t child_pid;
 	child_pid = wait(&child_status);
 	
 	printf("%s: %d %s: %d\n", "Finish Child",
 	       (int) child_pid, "with Status",
 	       WEXITSTATUS(child_status));
-	printf("%s\n", "Parent exiting...");
+	       printf("%s\n", "Parent exiting...");*/
 
-	sleep(3);
+	sleep(60);
 	
 	return 0;
 }
