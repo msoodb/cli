@@ -51,6 +51,11 @@ void *user_register(void *ptr)
 	struct user *t_user = (struct user *)ptr;
 	sleep(1);
 	printf("%d: %s\n", (int) pthread_self(), "thread started...");
+	printf("\tid: %d, name: %s, addr: %s, status: %d\n",
+	       t_user->id,
+	       t_user->name,
+	       t_user->addr,
+	       t_user->status);
 }
 
 int main(int argc, char *argv[])
