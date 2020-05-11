@@ -14,56 +14,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
+
 #include <pthread.h>
 
 
 /*
- * https://computing.llnl.gov/tutorials/pthreads/
- * http://www.cs.kent.edu/~ruttan/sysprog/lectures/multi-thread/multi-thread.html
- * https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html
- * https://www.thegeekstuff.com/2012/03/linux-threads-intro/
+ * creation
+ * termination
+ * synchronization (joins,blocking)
+ * scheduling 
+ * data management
+ * process interaction
  */
 
 
-int pwr(int a, int b)
+
+#define THREAD_COUNT 5
+
+struct user
 {
-	int i, p;
-	p = 1;
-	for (i = 0; i < b; ++i) {
-		p *= a; 
-	}
+	int id;
+	char *name;
+	char *addr;
+	bool status;
+};
 
-	return p;
-}
-
-
-void *t_func(void *value)
+void *user_register(void *ptr)
 {
-	printf("%s\n", "thread started...");
-
-	printf("%d\n", (int) pthread_self());
-
-	sleep(3);
-	
-	printf("%d\n", pwr(4, 3));
+	struct user *t_user = (struct user *)ptr;
+	sleep(1);
+	printf("%d: %s\n", (int) pthread_self(), "thread started...");
 }
 
 int main(int argc, char *argv[])
 {
+	pthread_t tid[THREAD_COUNT];
+	int err;
 
-	pthread_t tid;
+	struct user *current;
+	current = malloc(sizeof(struct user) * 1);
 
-	printf("%s\n", "Before thread");
+	int i;
+	for (i = 0; i < THREAD_COUNT; ++i) {
+		current->id = i;
+		current->name = "masoud";
+		current->addr = "Esspo";
+		current->status = true;
+		err = pthread_create(&tid[i], NULL, user_register, (void *)current);
+		if (err != 0)
+			printf("\ncan't create thread :[%s]", strerror(err));
+	}
 
-	pthread_create(&tid, NULL, t_func, NULL);
-	pthread_join(tid, NULL);
+	for (i = 0; i < THREAD_COUNT; ++i) {
+		pthread_join(tid[i], NULL);
+	}
 
-	printf("%s\n", "After thread");
-
-	
 	return 0;
 }
