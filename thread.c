@@ -35,8 +35,11 @@
  */
 
 
+#define COUNT_TO 1000000
+#define MAX_CORES 12
 
-#define THREAD_COUNT 5
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+long long l = 0;
 
 struct user
 {
@@ -58,27 +61,52 @@ void *user_register(void *ptr)
 	       t_user->status);
 }
 
+void *count(void *arg)
+{
+	for (;;) {
+
+		pthread_mutex_lock(&mutex);
+		
+		if (l >= COUNT_TO) {
+			pthread_mutex_unlock(&mutex);
+			return NULL;			
+		}
+
+		l++;
+
+		pthread_mutex_unlock(&mutex);
+
+		printf("l = %lld\n", l);
+	}
+
+}
+
 int main(int argc, char *argv[])
 {
-	pthread_t tid[THREAD_COUNT];
+
+	pthread_t *thread_pool;
+	thread_pool = malloc(sizeof(pthread_t) * MAX_CORES);
+
 	int err;
 
 	struct user *current;
 	current = malloc(sizeof(struct user) * 1);
 
 	int i;
-	for (i = 0; i < THREAD_COUNT; ++i) {
-		current->id = i;
+	for (i = 0; i < MAX_CORES; ++i) {
+		/*current->id = i;
 		current->name = "masoud";
 		current->addr = "Esspo";
 		current->status = true;
-		err = pthread_create(&tid[i], NULL, user_register, (void *)current);
+		err = pthread_create(&thread_pool[i], NULL, user_register, (void *)current);*/
+
+		err = pthread_create(&thread_pool[i], NULL, count, NULL);				
 		if (err != 0)
 			printf("\ncan't create thread :[%s]", strerror(err));
 	}
 
-	for (i = 0; i < THREAD_COUNT; ++i) {
-		pthread_join(tid[i], NULL);
+	for (i = 0; i < MAX_CORES; ++i) {
+		pthread_join(thread_pool[i], NULL);
 	}
 
 	return 0;
