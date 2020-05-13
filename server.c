@@ -70,6 +70,7 @@ Ref:
 #define _MAXIMUM_CLIENT 99
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+
 /*
  * Handle connection for each client
 */
@@ -86,18 +87,26 @@ void *connection_handler(void *arg)
 	/* Start critical section */
 	pthread_mutex_lock(&mutex);
 
-	/* read */
+	/* Read */
 	memset(recieve_buffer, '\0', sizeof recieve_buffer);
-	if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0){
+	if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
 		return NULL;
 	}
 
-
 	/* write */
-	send_buffer = "hello, socket server.";
-	if( send(sock, send_buffer, strlen(send_buffer), 0) < 0){
+	send_buffer = "hello, socket server.\n";
+	if( write(sock, send_buffer, strlen(send_buffer)) < 0){
 		pthread_mutex_unlock(&mutex);
 		return NULL;
+	}
+
+	/* Read and Write loop */	
+	while(1){
+		printf("%s\n", recieve_buffer);
+		if (read(sock, recieve_buffer, _BUFFER_SIZE) < 0) {
+			break;
+		}
+		write(sock, send_buffer, strlen(send_buffer));
 	}
 
 	/* End critical section */
@@ -150,8 +159,7 @@ int main(int argc, char *argv[])
 	/* listen */
 	listen(sockfd, _MAXIMUM_CLIENT);
 	
-	while(1)
-	{
+	while(1){
 		/* accept */
 		client_len = sizeof(struct sockaddr_in);		
 		sock = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&client_len);
@@ -161,18 +169,11 @@ int main(int argc, char *argv[])
 		client_ip = inet_ntoa(client.sin_addr);
 		client_port = ntohs(client.sin_port);
 		printf("%d: %s %d\n", sock, client_ip, client_port);
+
+		//Reply to the client
+		send_buffer = "Hello Client , I have received your connection. And now I will assign a handler for you\n";
+		write(sock , send_buffer , strlen(send_buffer));
 		
-		/* read */
-		/*memset(recieve_buffer, '\0', sizeof recieve_buffer);
-		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0)
-		break;		*/
-
-		/* write */
-		/*send_buffer = "hello, socket server.";
-		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0)
-		exit (EXIT_FAILURE);		*/
-
-
 		/* Thread */
 		sock_ptr = malloc(sizeof(int) * 1);
 		*sock_ptr = sock;
@@ -185,11 +186,7 @@ int main(int argc, char *argv[])
 		pthread_join(socket_thread, NULL);
 
 		/* close */
-		close(sock);
-		//shutdown(sock, 0);
-		//shutdown(sock, 1);
-		//shutdown(sock, 2);
-			
+		close(sock);			
 	}
 
 	return EXIT_SUCCESS;
