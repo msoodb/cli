@@ -43,22 +43,22 @@
          |
    ______V_______
   |              |
-  |   accept()   |<---------
-  |______________|          |
-         |                  |
-   ______V_______           |
-  |              |          |
-  |    read()    |<---      |
-  |______________|    |     |
-         |            |     |
-   ______V_______     |     |
-  |              |    |     |
-  |    write()   |----      |
-  |______________|          |
-         |                  |
-   ______V_______           |
-  |              |          |
-  |    close()   |----------
+  |   accept()   |<------------------------------------
+  |______________|                                     |
+         |__________________________                   |
+   ______V_______             ______V_______           |
+  |              |           |              |          |
+  |    read()    |<---       |    read()    |<---      |
+  |______________|    |      |______________|    |     |
+         |            |             |            |     |
+   ______V_______     |       ______V_______     |     |
+  |              |    |      |              |    |     |
+  |    write()   |----       |    write()   |----      |
+  |______________|           |______________|          |
+         |__________________________|                  |
+   ______V_______                                      |
+  |              |                                     |
+  |    close()   |-------------------------------------
   |______________|
 
 Ref: 
@@ -70,6 +70,14 @@ Ref:
 #define _MAXIMUM_CLIENT 99
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1);
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
 
 /*
  * Handle connection for each client
@@ -88,25 +96,35 @@ void *connection_handler(void *arg)
 	pthread_mutex_lock(&mutex);
 
 	/* Read */
-	memset(recieve_buffer, '\0', sizeof recieve_buffer);
+	/*memset(recieve_buffer, '\0', sizeof recieve_buffer);
 	if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
 		return NULL;
-	}
+		}*/
 
 	/* write */
-	send_buffer = "hello, socket server.\n";
+	/*send_buffer = "hello, socket server.\n";
 	if( write(sock, send_buffer, strlen(send_buffer)) < 0){
 		pthread_mutex_unlock(&mutex);
 		return NULL;
-	}
+		}*/
+	
+	/* Read and Write loop */
 
-	/* Read and Write loop */	
 	while(1){
-		printf("%s\n", recieve_buffer);
-		if (read(sock, recieve_buffer, _BUFFER_SIZE) < 0) {
-			break;
+		/* Read */
+		memset(recieve_buffer, '\0', sizeof recieve_buffer);
+		if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
+			return NULL;
 		}
-		write(sock, send_buffer, strlen(send_buffer));
+
+		/* write */
+		//send_buffer = "hello, socket server. \n";
+		send_buffer = concat("hello, socket server: ", recieve_buffer);
+		
+		if( write(sock, send_buffer, strlen(send_buffer)) < 0){		
+			pthread_mutex_unlock(&mutex);
+			return NULL;
+		}
 	}
 
 	/* End critical section */
@@ -166,18 +184,14 @@ int main(int argc, char *argv[])
 		if (sock < 0)
 			exit (EXIT_FAILURE);		
 
+		/* Client IP and PORT */
 		client_ip = inet_ntoa(client.sin_addr);
 		client_port = ntohs(client.sin_port);
 		printf("%d: %s %d\n", sock, client_ip, client_port);
-
-		//Reply to the client
-		send_buffer = "Hello Client , I have received your connection. And now I will assign a handler for you\n";
-		write(sock , send_buffer , strlen(send_buffer));
-		
-		/* Thread */
+				
+		/* Read and Write in thread */
 		sock_ptr = malloc(sizeof(int) * 1);
-		*sock_ptr = sock;
-		
+		*sock_ptr = sock;		
 		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)sock_ptr) < 0){
 			printf("%s\n", "Could not create thread");
 			return EXIT_FAILURE;
