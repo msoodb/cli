@@ -83,55 +83,38 @@ char* concat(const char *s1, const char *s2)
  * Handle connection for each client
 */
 void *connection_handler(void *arg)
-{
-	
+{		
 	char recieve_buffer[_BUFFER_SIZE] = {0};
 	char *send_buffer;
 	int sock;
 
 	sock = *(int *)arg;
+	if (arg != NULL) free(arg);
 	
-
 	/* Start critical section */
 	pthread_mutex_lock(&mutex);
 
-	/* Read */
-	/*memset(recieve_buffer, '\0', sizeof recieve_buffer);
-	if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
-		return NULL;
-		}*/
-
-	/* write */
-	/*send_buffer = "hello, socket server.\n";
-	if( write(sock, send_buffer, strlen(send_buffer)) < 0){
-		pthread_mutex_unlock(&mutex);
-		return NULL;
-		}*/
-	
 	/* Read and Write loop */
-
 	while(1){
 		/* Read */
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
+			pthread_mutex_unlock(&mutex);
 			return NULL;
 		}
 
 		/* write */
-		//send_buffer = "hello, socket server. \n";
-		send_buffer = concat("hello, socket server: ", recieve_buffer);
-		
+		send_buffer = concat("server: ", recieve_buffer);
 		if( write(sock, send_buffer, strlen(send_buffer)) < 0){		
 			pthread_mutex_unlock(&mutex);
 			return NULL;
 		}
+		if (send_buffer != NULL) free(send_buffer);
 	}
 
 	/* End critical section */
 	pthread_mutex_unlock(&mutex);
-
-	free(arg);	
-	
+			
 	return NULL;	
 }
 
@@ -139,7 +122,6 @@ int main(int argc, char *argv[])
 {	
 	int sockfd;
 	int sock;
-	int *sock_ptr;
 	
 	int client_len;
 	int port;
@@ -189,10 +171,8 @@ int main(int argc, char *argv[])
 		client_port = ntohs(client.sin_port);
 		printf("%d: %s %d\n", sock, client_ip, client_port);
 				
-		/* Read and Write in thread */
-		sock_ptr = malloc(sizeof(int) * 1);
-		*sock_ptr = sock;		
-		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)sock_ptr) < 0){
+		/* Read and Write in thread */		
+		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)&sock) < 0){
 			printf("%s\n", "Could not create thread");
 			return EXIT_FAILURE;
 		}
@@ -200,7 +180,8 @@ int main(int argc, char *argv[])
 		pthread_join(socket_thread, NULL);
 
 		/* close */
-		close(sock);			
+		if (client_ip != NULL) free(client_ip);
+		if (sock) close(sock);			
 	}
 
 	return EXIT_SUCCESS;
