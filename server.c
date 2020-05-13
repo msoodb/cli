@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -67,15 +68,56 @@ Ref:
 
 #define _BUFFER_SIZE 1024
 #define _MAXIMUM_CLIENT 99
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/*
+ * Handle connection for each client
+*/
+void *connection_handler(void *arg)
+{
+	
+	char recieve_buffer[_BUFFER_SIZE] = {0};
+	char *send_buffer;
+	int sock;
+
+	sock = *(int *)arg;
+	
+
+	/* Start critical section */
+	pthread_mutex_lock(&mutex);
+
+	/* read */
+	memset(recieve_buffer, '\0', sizeof recieve_buffer);
+	if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0){
+		return NULL;
+	}
+
+
+	/* write */
+	send_buffer = "hello, socket server.";
+	if( send(sock, send_buffer, strlen(send_buffer), 0) < 0){
+		pthread_mutex_unlock(&mutex);
+		return NULL;
+	}
+
+	/* End critical section */
+	pthread_mutex_unlock(&mutex);
+
+	free(arg);	
+	
+	return NULL;	
+}
 
 int main(int argc, char *argv[])
 {	
 	int sockfd;
 	int sock;
+	int *sock_ptr;
 	
 	int client_len;
 	int port;
+
+	pthread_t socket_thread;
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
@@ -118,23 +160,35 @@ int main(int argc, char *argv[])
 
 		client_ip = inet_ntoa(client.sin_addr);
 		client_port = ntohs(client.sin_port);
-		printf("%s %d\n", client_ip, client_port);
+		printf("%d: %s %d\n", sock, client_ip, client_port);
 		
 		/* read */
-		memset(recieve_buffer, '\0', sizeof recieve_buffer);
+		/*memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( recv(sock, recieve_buffer, _BUFFER_SIZE, 0) < 0)
-			break;		
+		break;		*/
 
 		/* write */
-		send_buffer = "hello, socket server.";
+		/*send_buffer = "hello, socket server.";
 		if( send(sock, send_buffer, strlen(send_buffer), 0) < 0)
-			exit (EXIT_FAILURE);		
+		exit (EXIT_FAILURE);		*/
+
+
+		/* Thread */
+		sock_ptr = malloc(sizeof(int) * 1);
+		*sock_ptr = sock;
+		
+		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)sock_ptr) < 0){
+			printf("%s\n", "Could not create thread");
+			return EXIT_FAILURE;
+		}
+
+		pthread_join(socket_thread, NULL);
 
 		/* close */
 		close(sock);
-		shutdown(sock, 0);
-		shutdown(sock, 1);
-		shutdown(sock, 2);
+		//shutdown(sock, 0);
+		//shutdown(sock, 1);
+		//shutdown(sock, 2);
 			
 	}
 
