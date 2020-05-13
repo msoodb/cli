@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
+
 	char *client_ip;
 	int client_port;
 
