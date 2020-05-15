@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2020-2020 msoodb.org
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -14,30 +12,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
-
 #include <pthread.h>
-
 
 /*
  * creation
  * termination
- * synchronization (joins,blocking)
+ * synchronization (joins, blocking)
  * scheduling 
  * data management
  * process interaction
+ *
+ * https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html
  */
 
-
-#define COUNT_TO 10000000
-#define MAX_CORES 12
-#define COUNT_DONE  10
+#define COUNT_TO     10000000
+#define MAX_CORES    12
+#define COUNT_DONE   10
 #define COUNT_HALT1  3
 #define COUNT_HALT2  6
 

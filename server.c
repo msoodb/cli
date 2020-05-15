@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2020-2020 msoodb.org
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -70,7 +68,11 @@ Ref:
 #define _MAXIMUM_CLIENT 99
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-
+/*
+ * @s1
+ * @s2
+ * concat s1 and s2 and return as result.
+ */
 char* concat(const char *s1, const char *s2)
 {
     char *result = malloc(strlen(s1) + strlen(s2) + 1);
@@ -117,6 +119,7 @@ void *connection_handler(void *arg)
 			
 	return NULL;	
 }
+
 
 int main(int argc, char *argv[])
 {	
