@@ -9,10 +9,10 @@ void print_chunk(char *chunk)
 	printf("%s", chunk);
 }
 
-void write_chunk(char *chunk)
+void write_chunk(char *file, char *chunk)
 {
 	FILE *fp;
-	fp = fopen("README.md~", "a");
+	fp = fopen(file, "a");
 
 	if(fp == NULL) return;
 	
@@ -21,22 +21,25 @@ void write_chunk(char *chunk)
 	fclose(fp);
 }
 
-
-void read_fchunk(char *path)
+/*
+ * @path
+ * Read file line by line and exec some function on each chunk
+ */
+void read_chunk(char *file)
 {	
 	FILE *fp;
 	
 	char *chunk;
 	size_t chunk_len;	
 	
-	fp = fopen(path, "r");
+	fp = fopen(file, "r");
 	if (fp == NULL) return;
 		
 	chunk = NULL;
 
 	int i = 0;
 	while (getline(&chunk, &chunk_len, fp) != -1) {
-		write_chunk(chunk);
+		write_chunk("README.md~", chunk);
 	}
 
 	fclose(fp);
@@ -44,7 +47,11 @@ void read_fchunk(char *path)
 	if (chunk) free(chunk);
 }
 
-char *read_file(const char *path)
+/*
+ * @path
+ * Read whole file and return char * buffer
+ */
+char *read_file(const char *file)
 {
 	FILE *fp;
 	long f_size;
@@ -53,7 +60,7 @@ char *read_file(const char *path)
 	fp = NULL;
 	f_size = 0;
 	
-      	fp = fopen(path, "r");
+      	fp = fopen(file, "r");
 	if (fp == NULL) return NULL;
 
 	fseek(fp, 0L, SEEK_END);
@@ -73,7 +80,7 @@ int main(int argc, char *argv[])
 	char *buff;
 	//buff = read_file("README.md");
 
-	read_fchunk("README.md");
+	read_chunk("README.md");
 
 
 	if (buff != NULL) free(buff);
