@@ -37,9 +37,18 @@
 
 #define COUNT_TO 10000000
 #define MAX_CORES 12
+#define COUNT_DONE  10
+#define COUNT_HALT1  3
+#define COUNT_HALT2  6
+
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t count_mutex     = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t condition_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  condition_cond  = PTHREAD_COND_INITIALIZER;
+
 long long counter = 0;
+int  count = 0;
 
 
 struct user
@@ -50,6 +59,9 @@ struct user
 	bool status;
 };
 
+/*
+ * user_register
+ */
 void *user_register(void *ptr)
 {
 	struct user *t_user = (struct user *)ptr;
@@ -62,7 +74,10 @@ void *user_register(void *ptr)
 	       t_user->status);
 }
 
-void *count(void *arg)
+/*
+ * count
+ */
+void *count2(void *arg)
 {
 	for (;;) {
 
@@ -81,12 +96,15 @@ void *count(void *arg)
 
 		printf("counter = %lld\n", counter);
 	}
-
 }
 
+/*
+ * counter_increase
+ */
 void *counter_increase(void *arg)
 {
 	printf("%s: %lld\n", "Thread Number", (long)pthread_self());
+
 	/* Start critical section */
 	pthread_mutex_lock(&mutex);
 		
@@ -95,6 +113,47 @@ void *counter_increase(void *arg)
 	/* End critical section */
 	pthread_mutex_unlock(&mutex);
 }
+
+void *functionCount1(void *arg)
+{
+	for(;;)
+	{
+		pthread_mutex_lock( &condition_mutex );
+		while( count >= COUNT_HALT1 && count <= COUNT_HALT2 )
+		{
+			pthread_cond_wait( &condition_cond, &condition_mutex );
+		}
+		pthread_mutex_unlock( &condition_mutex );
+
+		pthread_mutex_lock( &count_mutex );
+		count++;
+		printf("Counter value functionCount1: %d\n",count);
+		pthread_mutex_unlock( &count_mutex );
+
+		if(count >= COUNT_DONE) return(NULL);
+	}
+}
+
+void *functionCount2(void *arg)
+{
+	for(;;)
+	{
+		pthread_mutex_lock( &condition_mutex );
+		if( count < COUNT_HALT1 || count > COUNT_HALT2 )
+		{
+			pthread_cond_signal( &condition_cond );
+		}
+		pthread_mutex_unlock( &condition_mutex );
+
+		pthread_mutex_lock( &count_mutex );
+		count++;
+		printf("Counter value functionCount2: %d\n",count);
+		pthread_mutex_unlock( &count_mutex );
+
+		if(count >= COUNT_DONE) return(NULL);
+	}
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -108,22 +167,40 @@ int main(int argc, char *argv[])
 	current = malloc(sizeof(struct user) * 1);
 
 	/* Spawn threads */
-	for (i = 0; i < MAX_CORES; ++i) {
-		/*current->id = i;
+	/*for (i = 0; i < MAX_CORES; ++i) {
+		current->id = i;
 		current->name = "masoud";
 		current->addr = "Esspo";
 		current->status = true;
-		err = pthread_create(&thread_pool[i], NULL, user_register, (void *)current);*/
+		err = pthread_create(&thread_pool[i], NULL, user_register, (void *)current);
+		if (err != 0)
+			printf("\ncan't create thread :[%s]", strerror(err));
+			}*/
+
+	/*for (i = 0; i < MAX_CORES; ++i) {
 		err = pthread_create(&thread_pool[i], &attr, counter_increase, NULL);
 		if (err != 0)
 			printf("\ncan't create thread :[%s]", strerror(err));
-	}
+			}*/
+
+	/*for (i = 0; i < MAX_CORES; ++i) {
+		err = pthread_create(&thread_pool[i], &attr, count, NULL);
+		if (err != 0)
+			printf("\ncan't create thread :[%s]", strerror(err));
+	}*/
+
+	pthread_t thread1, thread2;
+
+	pthread_create(&thread1, NULL, &functionCount1, NULL);
+	pthread_create(&thread2, NULL, &functionCount2, NULL);
+	pthread_join(thread1, NULL);
+	pthread_join(thread2, NULL);
 
 	/* Wait for threads to finish */
-	for (i = 0; i < MAX_CORES; ++i) {
+	/*for (i = 0; i < MAX_CORES; ++i) {
 		pthread_join(thread_pool[i], NULL);
-	}
+		}*/
 
-	printf("%lld\n", counter);
+	printf("Final count value: %lld\n", count);
 	return 0;
 }
