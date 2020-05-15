@@ -15,7 +15,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
+
+/*
+ * @s1
+ * @s2
+ * concat s1 and s2 and return as result.
+ */
+char* concat(const char *s1, const char *s2)
+{
+	char *result = malloc(strlen(s1) + strlen(s2) + 1);
+	strcpy(result, s1);
+	strcat(result, s2);
+	return result;
+}
+
+/*
+ * @file
+ */
+int file_exists(const char *file)
+{
+	struct stat stats;
+	stat(file, &stats);
+	if (stats.st_mode & R_OK) return 1;
+	return 0;
+}
 
 /*
  * @file
@@ -52,7 +79,15 @@ void read_chunk(char *file)
 
 	int i = 0;
 	while (getline(&chunk, &chunk_len, fp) != -1) {
-		write_chunk("README.md~", chunk);
+
+		int length = snprintf(NULL, 0, "%3d", i);
+		char* str = malloc(length + 1);
+		snprintf(str, length + 1, "%03d", i);
+
+		write_chunk(concat("directory/file_", concat(str, ".txt")), chunk);
+
+		i++;
+
 	}
 
 	fclose(fp);
@@ -90,13 +125,12 @@ char *read_file(const char *file)
 
 int main(int argc, char *argv[])
 {
-	char *buff;
-	//buff = read_file("README.md");
+	struct stat st = {0};
+	if (stat("directory", &st) == -1) {
+		mkdir("directory", 0700);
+	}
 
-	read_chunk("README.md");
-
-
-	if (buff != NULL) free(buff);
+	read_chunk("file.c");
 	
 	return 0;
 }
