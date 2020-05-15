@@ -9,6 +9,19 @@ void print_chunk(char *chunk)
 	printf("%s", chunk);
 }
 
+void write_chunk(char *chunk)
+{
+	FILE *fp;
+	fp = fopen("README.md~", "a");
+
+	if(fp == NULL) return;
+	
+	fprintf(fp, "%s", chunk);
+	
+	fclose(fp);
+}
+
+
 void read_fchunk(char *path)
 {	
 	FILE *fp;
@@ -17,13 +30,13 @@ void read_fchunk(char *path)
 	size_t chunk_len;	
 	
 	fp = fopen(path, "r");
-	if (fp == NULL) return;}	
+	if (fp == NULL) return;
 		
 	chunk = NULL;
 
 	int i = 0;
 	while (getline(&chunk, &chunk_len, fp) != -1) {
-		print_chunk(chunk);
+		write_chunk(chunk);
 	}
 
 	fclose(fp);
@@ -62,19 +75,7 @@ int main(int argc, char *argv[])
 
 	read_fchunk("README.md");
 
-	/* Write to file */
-	/*FILE *fp;
-	fp = fopen("README.md~", "w");
 
-	if(fp == NULL){
-		printf("Error!");   
-		exit(1);             
-	}
-	
-	fprintf(fp,"%s", buff);
-	fclose(fp);*/
-
-	
 	if (buff != NULL) free(buff);
 	
 	return 0;
