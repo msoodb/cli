@@ -1,4 +1,6 @@
 *.o
+labor/
+
 
 cli
 server

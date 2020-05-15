@@ -22,7 +22,8 @@
 /*
  * creation
  * termination
- * synchronization (joins, blocking)
+ * synchronization - joins
+ * synchronization - blocking
  * scheduling 
  * data management
  * process interaction
