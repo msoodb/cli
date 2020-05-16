@@ -19,7 +19,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
 /*
  * Creation: FILE *fp
  * Opening:  fopen
@@ -110,6 +109,7 @@ char *read_file(const char *file)
 	return buf;
 }
 
+
 int main(int argc, char *argv[])
 {
 	struct stat st = {0};
@@ -118,6 +118,6 @@ int main(int argc, char *argv[])
 	}
 
 	read_chunk("file.c");
-	
+
 	return 0;
 }
