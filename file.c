@@ -21,10 +21,13 @@
 
 
 /*
- * @s1
- * @s2
- * concat s1 and s2 and return as result.
+ * Creation: FILE *fp
+ * Opening:  fopen
+ * Reading:  getline
+ * Writing:  fprintf
+ * Closing:  fclose
  */
+
 char* concat(const char *s1, const char *s2)
 {
 	char *result = malloc(strlen(s1) + strlen(s2) + 1);
@@ -33,9 +36,6 @@ char* concat(const char *s1, const char *s2)
 	return result;
 }
 
-/*
- * @file
- */
 int file_exists(const char *file)
 {
 	struct stat stats;
@@ -44,11 +44,6 @@ int file_exists(const char *file)
 	return 0;
 }
 
-/*
- * @file
- * @chunk
- * Append chunk at the end of file.
- */
 void write_chunk(char *file, char *chunk)
 {
 	FILE *fp;
@@ -61,10 +56,6 @@ void write_chunk(char *file, char *chunk)
 	fclose(fp);
 }
 
-/*
- * @path
- * Read file line by line and exec some function on each chunk
- */
 void read_chunk(char *file)
 {	
 	FILE *fp;
@@ -95,10 +86,6 @@ void read_chunk(char *file)
 	if (chunk) free(chunk);
 }
 
-/*
- * @path
- * Read whole file and return char * buffer
- */
 char *read_file(const char *file)
 {
 	FILE *fp;

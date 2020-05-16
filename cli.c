@@ -62,9 +62,6 @@ static struct option const long_options[] = {
 };
 
 
-/*
- *
- */
 void init_command()
 {
 	command.config = NULL;
@@ -75,9 +72,6 @@ void init_command()
 	command.PORT = -1;
 }
 
-/*
- *
- */
 int vbprintf(const char *fmt, ...)
 {
 	va_list ap;
@@ -91,9 +85,6 @@ int vbprintf(const char *fmt, ...)
 	return res;
 }
 
-/*
- *
- */
 void help(int status)
 {
 	printf("%s %s (%s)\n", _PROGRAM_NAME, _PROGRAM_VERSION, _PROGRAM_URL);
@@ -114,9 +105,6 @@ void help(int status)
 		exit(status);
 }
 
-/*
- *
- */
 void version(void)
 {
 	printf("%s %s (%s)\n", _PROGRAM_NAME, _PROGRAM_VERSION, _PROGRAM_URL);
@@ -129,9 +117,6 @@ void version(void)
 	printf("%s %s.\n", "Written by", _PROGRAM_AUTHORS);
 }
 
-/*
- *
- */
 int file_exists(const char *file)
 {
 	struct stat stats;
@@ -140,9 +125,6 @@ int file_exists(const char *file)
 	return 0;
 }
 
-/*
- *
- */
 void sig_handler(int signo)
 {
 	if (signo == SIGINT){
@@ -151,14 +133,10 @@ void sig_handler(int signo)
 	}
 }
 
-/*
- *
- */
 void terminate()
 {
 	return;
 }
-
 
 int main(int argc, char *argv[])
 {
