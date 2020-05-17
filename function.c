@@ -1,13 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-
+#include <time.h>
+#include <math.h>
 
 /*
  * getchar()
  * putchar(c)
- * EOF
  * printf()
  * sprintf()
  * minprintf()
@@ -16,9 +17,7 @@
  * getline()
  *
  *
- * FILE *fp
- * FILE *fopen()
- * stdin, stdout, and stderr
+ * FILE *fp = fopen()
  * getc(FILE *fp) 
  * putc(int c, FILE *fp)
  * fscanf(FILE *fp, char *format, ...)
@@ -81,12 +80,6 @@
 
 int main(int argc, char *argv[])
 {
-	char c;
 
-	while ((c = getchar()) != EOF) {
-		putchar(tolower(c));
-	}
-	
 	return 0;
 }
-
