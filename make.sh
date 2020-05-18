@@ -10,7 +10,7 @@ then
     rm process
     rm thread
     rm file
-    rm io
+    rm 'function'
 else
     cc -o cli cli.c
     cc -o server server.c -lpthread
@@ -19,5 +19,5 @@ else
     cc -o process process.c
     cc -o thread thread.c -lpthread
     cc -o file file.c
-    cc -o io io.c
+    cc -o 'function' function.c
 fi

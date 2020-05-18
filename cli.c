@@ -12,20 +12,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* basic headers */
-#include <stdio.h>            /* io     */
-#include <stdlib.h>           /* memory */
-#include <getopt.h>           /* cli    */
-#include <string.h>           /* strcpy */ 
-#include <stdbool.h>          /* bool   */ 
+#include <stdio.h>
+#include <stdlib.h>
+#include <getopt.h>
+#include <string.h>
+#include <stdbool.h>
 
-/* advanced headers */
-#include <unistd.h>          /* sleep    */
-#include <signal.h>          /* SIGINT   */  
-#include <stdarg.h>          /* va_start */
-#include <sys/stat.h>        /* state    */
+#include <unistd.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <sys/stat.h>
 
-/* The official name of this program (e.g., no 'g' prefix).  */
+/* 
+ * the official name and description of this program.
+*/
 #define _PROGRAM_NAME       "cli"
 #define _PROGRAM_DESC       "command line arguments and options management"
 #define _PROGRAM_AUTHORS    "msoodb (Masoud Bolhassani)"
@@ -110,7 +110,8 @@ void version(void)
 	printf("%s %s (%s)\n", _PROGRAM_NAME, _PROGRAM_VERSION, _PROGRAM_URL);
 	printf("\n");
 	printf("%s\n", "Copyright (C) 2019 Free Software Foundation, Inc.");
-	printf("%s\n", "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.");
+	printf("%s",   "License GPLv3+: GNU GPL version 3 or later");
+	printf("%s\n", " <https://gnu.org/licenses/gpl.html>.");
 	printf("%s\n", "This is free software: you are free to change and redistribute it.");
 	printf("%s\n", "There is NO WARRANTY, to the extent permitted by law.");
 	printf("\n");
@@ -141,12 +142,16 @@ void terminate()
 int main(int argc, char *argv[])
 {
 		
-	/* sign handler and register terminate function at exit */
+	/* 
+	 * sign handler and register terminate function at exit 
+	 */
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
 		printf("\n%s\n","can't catch SIGINT");
 	atexit(terminate);
 
-	/* cli menu section */
+	/* 
+	 * cli menu section 
+	 */
 	int option_value;
 	int option_index;
 	int argument_index;
@@ -190,7 +195,7 @@ int main(int argc, char *argv[])
 			return EXIT_SUCCESS;
 		case 1:
 			if (argument_index == 0 && optarg) {
-				command.SOURCE = strdup(optarg);				
+				command.SOURCE = strdup(optarg);
 			}
 			if (argument_index == 1 && IN_RANGE(optarg)) {
 				command.PORT = atoi(optarg); 
@@ -208,7 +213,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	/* arguments */
+	/* 
+	 * arguments 
+	 */
 	if (command.SOURCE == NULL){
 		printf("%s: %s\n", _PROGRAM_NAME, "missing SOURCE file");
 		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
@@ -216,7 +223,8 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	if (file_exists(command.SOURCE) == 0) {
-		printf("%s%s%s\n", "cannot stat '", command.SOURCE, "': No such file or directory");
+		printf("%s%s%s\n", "cannot stat '",
+		       command.SOURCE, "': No such file or directory");
 		exit(EXIT_FAILURE);
 	}
 	if (command.PORT == -1) {
@@ -228,9 +236,11 @@ int main(int argc, char *argv[])
 
 	vbprintf("%s %d\n", "Port is set to", command.PORT);
 	vbprintf("%s %s\n", "Source file is", command.SOURCE);
-	/* end of arguments */
 
-	/* options */
+
+	/* 
+	 * options 
+	 */
 	if (command.config != NULL)
 		vbprintf("%s %s\n", "Config file is", command.config);
 	
@@ -239,9 +249,11 @@ int main(int argc, char *argv[])
 	
 	if (command.output != NULL)
 		vbprintf("%s %s\n", "Output type is", command.output);
-	/* end of options */	
 	
-	/* main */
+	/* 
+	 * main section of program
+	 * after reading options and arguments
+	 */
 	int i = 0;
 	while (i++ < 5) {
 		sleep(1);
