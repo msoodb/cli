@@ -58,6 +58,7 @@
  *
  * malloc(size_t n)
  * calloc(size_t n, size_t size)
+ * realloc(void *ptr, size_t size)
  * free(p)
  *
  *
