@@ -66,39 +66,24 @@ Ref:
 
 #define _BUFFER_SIZE 1024
 #define _MAXIMUM_CLIENT 99
+
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-/*
- * @s1
- * @s2
- * concat s1 and s2 and return as result.
- */
-char* concat(const char *s1, const char *s2)
-{
-	char *result = malloc(strlen(s1) + strlen(s2) + 1);
-	strcpy(result, s1);
-	strcat(result, s2);
-	return result;
-}
 
-/*
- * Handle connection for each client
-*/
 void *connection_handler(void *arg)
-{		
+{	
 	char recieve_buffer[_BUFFER_SIZE] = {0};
 	char *send_buffer;
 	int sock;
 
 	sock = *(int *)arg;
-	if (arg != NULL) free(arg);
-	
-	/* Start critical section */
+		
+	/* start critical section */
 	pthread_mutex_lock(&mutex);
 
-	/* Read and Write loop */
+	/* read and write loop */
 	while(1){
-		/* Read */
+		/* read */
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
 			pthread_mutex_unlock(&mutex);
@@ -106,23 +91,25 @@ void *connection_handler(void *arg)
 		}
 
 		/* write */
-		send_buffer = concat("server: ", recieve_buffer);
+		send_buffer = "-----------\n";
 		if( write(sock, send_buffer, strlen(send_buffer)) < 0){		
 			pthread_mutex_unlock(&mutex);
 			return NULL;
 		}
-		if (send_buffer != NULL) free(send_buffer);
 	}
 
-	/* End critical section */
+	/* end critical section */
 	pthread_mutex_unlock(&mutex);
-			
+
+	if (arg != NULL) free(arg);
+	
 	return NULL;	
 }
 
 
 int main(int argc, char *argv[])
 {	
+	
 	int sockfd;
 	int sock;
 	
@@ -162,6 +149,7 @@ int main(int argc, char *argv[])
 
 	/* listen */
 	listen(sockfd, _MAXIMUM_CLIENT);
+
 	
 	while(1){
 		/* accept */
@@ -170,12 +158,12 @@ int main(int argc, char *argv[])
 		if (sock < 0)
 			exit (EXIT_FAILURE);		
 
-		/* Client IP and PORT */
+		/* client IP and PORT */
 		client_ip = inet_ntoa(client.sin_addr);
 		client_port = ntohs(client.sin_port);
 		printf("%d: %s %d\n", sock, client_ip, client_port);
-				
-		/* Read and Write in thread */		
+		
+		/* read and write */		
 		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)&sock) < 0){
 			printf("%s\n", "Could not create thread");
 			return EXIT_FAILURE;
@@ -185,7 +173,7 @@ int main(int argc, char *argv[])
 
 		/* close */
 		if (client_ip != NULL) free(client_ip);
-		if (sock) close(sock);			
+		if (sock) close(sock);	
 	}
 
 	return EXIT_SUCCESS;
