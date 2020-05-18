@@ -18,8 +18,8 @@
  *
  *
  * FILE *fp = fopen()
- * getc(FILE *fp) 
- * putc(int c, FILE *fp)
+ * fgetc(FILE *fp) 
+ * fputc(int c, FILE *fp)
  * fscanf(FILE *fp, char *format, ...)
  * fprintf(FILE *fp, char *format, ...)
  * fclose(FILE *fp)
@@ -81,6 +81,5 @@
 
 int main(int argc, char *argv[])
 {
-
 	return 0;
 }
