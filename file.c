@@ -19,15 +19,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-/*
- * Creation: FILE *fp
- * Opening:  fopen
- * Reading:  getline
- * Writing:  fprintf
- * Closing:  fclose
- */
-
-char* concat(const char *s1, const char *s2)
+char *concat(const char *s1, const char *s2)
 {
 	char *result = malloc(strlen(s1) + strlen(s2) + 1);
 	strcpy(result, s1);
@@ -43,53 +35,49 @@ int file_exists(const char *file)
 	return 0;
 }
 
-void write_chunk(char *file, char *chunk)
+void write_file(char *file, char *stream)
 {
 	FILE *fp;
-	fp = fopen(file, "a");
+	fp = fopen(file, "w");
 
 	if(fp == NULL) return;
 	
-	fprintf(fp, "%s", chunk);
+	fprintf(fp, "%s", stream);
 	
 	fclose(fp);
 }
 
-void read_chunk(char *file)
+void read_line(char *file)
 {	
 	FILE *fp;
 	
-	char *chunk;
-	size_t chunk_len;	
+	char *line;
+	size_t line_len;	
 	
 	fp = fopen(file, "r");
 	if (fp == NULL) return;
 		
-	chunk = NULL;
+	line = NULL;
 
 	int i = 0;
-	while (getline(&chunk, &chunk_len, fp) != -1) {
-
+	while (getline(&line, &line_len, fp) != -1) {
 		int length = snprintf(NULL, 0, "%3d", i);
 		char* str = malloc(length + 1);
 		snprintf(str, length + 1, "%03d", i);
-
-		write_chunk(concat("directory/file_", concat(str, ".txt")), chunk);
-
+		write_file(concat("directory/file_", concat(str, ".txt")), line);
 		i++;
-
 	}
 
 	fclose(fp);
 	
-	if (chunk) free(chunk);
+	if (line) free(line);
 }
 
 char *read_file(const char *file)
 {
 	FILE *fp;
 	long f_size;
-	char *buf;
+	char *stream;
 	
 	fp = NULL;
 	f_size = 0;
@@ -101,14 +89,13 @@ char *read_file(const char *file)
         f_size = ftell(fp);
         fseek(fp, 0L, SEEK_SET);                               
 
-	buf = (char *)malloc(sizeof(char) * (f_size + 1));             
-        fread(buf, sizeof(char), f_size, fp);
+	stream = (char *)malloc(sizeof(char) * (f_size + 1));             
+        fread(stream, sizeof(char), f_size, fp);
 	fclose(fp);
 
-	buf[f_size] = '\0';	
-	return buf;
+	stream[f_size] = '\0';	
+	return stream;
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -117,7 +104,7 @@ int main(int argc, char *argv[])
 		mkdir("directory", 0700);
 	}
 
-	read_chunk("file.c");
+	read_line("file.c");
 
 	return 0;
 }
