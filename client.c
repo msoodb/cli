@@ -105,15 +105,13 @@ int main(int argc, char *argv[])
 		       "\": Name or service not known. QUITTING.");
 		return EXIT_FAILURE;
 	}
-
-
 	
 	/* socket */
 	if ((socket_desc = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1){                                               
                 printf("%s\n", "Faield! create socket");                          
                 return 1;                                                     
         }                                                                                     
-        printf("%s\n", "[Info]: Socket created");
+        printf("%s\n", "Socket");
 
 
 	/* connect */		
@@ -124,7 +122,7 @@ int main(int argc, char *argv[])
 		printf("%s\n", "Error: Connect Failed");
 		return -1;
 	}
-	printf("%s\n", "[Info]: Socket connected");
+	printf("%s\n", "Connect");
 
 
 	while (1) {
@@ -138,7 +136,7 @@ int main(int argc, char *argv[])
 			printf("%s\n", "Error: send failed");
 			return 1;	
 		}
-		printf("%s\n", "[Info]: Send succeeded");
+		printf("%s\n", "Write");
 
 
 		sleep(1);
@@ -153,8 +151,8 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		recieve_buffer[n] = 0;
-		printf("%s\n", "[Info]: Recieve succeeded");
-		printf("%s", recieve_buffer);		
+		printf("%s\n", "Read");
+		//printf("%s", recieve_buffer);		
 	}
 	
 	/* close */
