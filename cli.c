@@ -142,16 +142,10 @@ void terminate()
 int main(int argc, char *argv[])
 {
 		
-	/* 
-	 * sign handler and register terminate function at exit 
-	 */
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
 		printf("\n%s\n","can't catch SIGINT");
 	atexit(terminate);
 
-	/* 
-	 * cli menu section 
-	 */
 	int option_value;
 	int option_index;
 	int argument_index;
@@ -213,9 +207,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	/* 
-	 * arguments 
-	 */
 	if (command.SOURCE == NULL){
 		printf("%s: %s\n", _PROGRAM_NAME, "missing SOURCE file");
 		printf("%s%s %s\n", "Try '", _PROGRAM_NAME,
@@ -237,10 +228,6 @@ int main(int argc, char *argv[])
 	vbprintf("%s %d\n", "Port is set to", command.PORT);
 	vbprintf("%s %s\n", "Source file is", command.SOURCE);
 
-
-	/* 
-	 * options 
-	 */
 	if (command.config != NULL)
 		vbprintf("%s %s\n", "Config file is", command.config);
 	
@@ -250,10 +237,7 @@ int main(int argc, char *argv[])
 	if (command.output != NULL)
 		vbprintf("%s %s\n", "Output type is", command.output);
 	
-	/* 
-	 * main section of program
-	 * after reading options and arguments
-	 */
+
 	int i = 0;
 	while (i++ < 5) {
 		sleep(1);

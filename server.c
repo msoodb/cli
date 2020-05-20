@@ -65,19 +65,21 @@ Ref:
 */
 
 #define _BUFFER_SIZE 1024
-#define _MAXIMUM_CLIENT 99
+#define _MAXIMUM_CLIENT 10
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 void *connection_handler(void *arg)
-{	
+{
 	char recieve_buffer[_BUFFER_SIZE] = {0};
 	char *send_buffer;
 	int sock;
 
 	sock = *(int *)arg;
-		
+	
+	printf("Thread number %ld\n", pthread_self());	
+	
 	/* start critical section */
 	pthread_mutex_lock(&mutex);
 
@@ -87,14 +89,22 @@ void *connection_handler(void *arg)
 		memset(recieve_buffer, '\0', sizeof recieve_buffer);
 		if( read(sock, recieve_buffer, _BUFFER_SIZE) < 0){
 			pthread_mutex_unlock(&mutex);
-			return NULL;
+			pthread_exit(0);
+		}
+
+		//printf("%s\n", recieve_buffer);
+		if (strcmp(recieve_buffer, "exit\n") == 0) {
+			printf("%s\n", "exit");
+			pthread_mutex_unlock(&mutex);
+			if (arg != NULL) free(arg);
+			pthread_exit(0);	
 		}
 
 		/* write */
 		send_buffer = "-----------\n";
 		if( write(sock, send_buffer, strlen(send_buffer)) < 0){		
 			pthread_mutex_unlock(&mutex);
-			return NULL;
+			pthread_exit(0);
 		}
 	}
 
@@ -103,7 +113,7 @@ void *connection_handler(void *arg)
 
 	if (arg != NULL) free(arg);
 	
-	return NULL;	
+	pthread_exit(0);
 }
 
 
@@ -112,6 +122,7 @@ int main(int argc, char *argv[])
 	
 	int sockfd;
 	int sock;
+	int *sock_ptr;
 	
 	int client_len;
 	int port;
@@ -133,46 +144,58 @@ int main(int argc, char *argv[])
 	port = 4545;
 
 	/* socket */
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1)
-		exit (EXIT_FAILURE);	
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) == -1){
+		printf("%s\n", "Socket Failed!");
+		exit (EXIT_FAILURE);
+	}
 	
 	int reuse = 1;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
+	{
+		printf("%s\n", "Setsocket opt Failed!");
 		exit (EXIT_FAILURE);
+	}
 
 	/* bind */
 	server.sin_family = AF_INET;    
 	server.sin_addr.s_addr = htonl(INADDR_ANY);
 	server.sin_port = htons(port);
-	if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
+	if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0){
+		printf("%s\n", "Bind Failed!");
 		exit (EXIT_FAILURE);
+	}
 
 	/* listen */
 	listen(sockfd, _MAXIMUM_CLIENT);
 
 	
+	int i = 0;
 	while(1){
 		/* accept */
 		client_len = sizeof(struct sockaddr_in);		
 		sock = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&client_len);
-		if (sock < 0)
-			exit (EXIT_FAILURE);		
+		if (sock < 0){
+			printf("%s\n", "Connection Failed!");
+			exit (EXIT_FAILURE);
+		}
 
 		/* client IP and PORT */
 		client_ip = inet_ntoa(client.sin_addr);
 		client_port = ntohs(client.sin_port);
-		printf("%d: %s %d\n", sock, client_ip, client_port);
+		printf("%s %s:%d\n", "Connection stablished to", client_ip, client_port);
 		
-		/* read and write */		
-		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)&sock) < 0){
-			printf("%s\n", "Could not create thread");
+		/* read and write */
+		sock_ptr = malloc(sizeof(int) * 1);
+		*sock_ptr = sock;
+		if( pthread_create(&socket_thread, NULL, connection_handler, (void*)sock_ptr) < 0){
+			printf("%s\n", "Thread Creation Faild!");
 			return EXIT_FAILURE;
 		}
 
+		//pthread_detach(socket_thread);
 		pthread_join(socket_thread, NULL);
-
-		/* close */
-		if (client_ip != NULL) free(client_ip);
+		
+                /* close */		
 		if (sock) close(sock);	
 	}
 
