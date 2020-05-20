@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	int socket_desc = 0, n = 0;
 	char send_buffer[BUFFER_SIZE] = {0};
 	char recieve_buffer[BUFFER_SIZE] = {0};	
-	struct sockaddr_in server, client;
+	struct sockaddr_in server;
 	struct timeval tv;
 	char *host;
 			

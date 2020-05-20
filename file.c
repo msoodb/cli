@@ -97,7 +97,7 @@ char *read_file(const char *file)
 	return stream;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 	struct stat st = {0};
 	if (stat("directory", &st) == -1) {

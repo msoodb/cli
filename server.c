@@ -117,9 +117,8 @@ void *connection_handler(void *arg)
 }
 
 
-int main(int argc, char *argv[])
-{	
-	
+int main()
+{		
 	int sockfd;
 	int sock;
 	int *sock_ptr;
@@ -134,9 +133,6 @@ int main(int argc, char *argv[])
 
 	char *client_ip;
 	int client_port;
-
-	char recieve_buffer[_BUFFER_SIZE];
-	char *send_buffer;
 
 	
 	sockfd = -1;
@@ -169,7 +165,6 @@ int main(int argc, char *argv[])
 	listen(sockfd, _MAXIMUM_CLIENT);
 
 	
-	int i = 0;
 	while(1){
 		/* accept */
 		client_len = sizeof(struct sockaddr_in);		
