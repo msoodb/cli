@@ -39,11 +39,7 @@ static const char *json_tv =
 }";
 
 static const char *json =
-"{\n\
-\t\"name\": \"Awesome 4K\",\n\
-\t\"version\": \"0.1.0\",\n\
-\t\"private\": true\n\
-}";
+"{\n\t\"name\": \"Awesome 4K\",\n\t\"version\": \"0.1.0\",\n\t\"private\": true\n}";
 
 
 typedef struct _lex
@@ -70,13 +66,15 @@ LEX *lexer(char *chunk)
 		return NULL;
 	}
 
+	
 	/* type */	
 	lx->type = 0;
 
+	//printf("%s\n", chunk);
 
 	/* key */
 	while(isspace((unsigned char)*chunk) || *chunk == '"') chunk++;
-	step = strcspn(chunk, "\"\r\n");
+	step = strcspn(chunk, "\"\n");
 	lx->key = malloc(sizeof(char) * (step + 1));	
 	if (lx->key == NULL) {
 		return NULL;
@@ -87,7 +85,7 @@ LEX *lexer(char *chunk)
 
 	/* value */
 	while(isspace((unsigned char)*chunk) || *chunk == ':' || *chunk == '"') chunk++;
-	step = strcspn(chunk, "\",\r\n");
+	step = strcspn(chunk, "\",\n");
 	lx->value = malloc(sizeof(char) * (step + 1));
 	if (lx->value == NULL) {
 		return NULL;
@@ -98,23 +96,94 @@ LEX *lexer(char *chunk)
 	return lx;
 }
 
-int main()
-{
-	printf("%s\n", json);
+void parse(const char *stream)
+{	
+	char *chunk;
+	size_t step;
 
-	//char *line = "\t\"name\":\"Awesome 4K\",\n";
-	char *line = "{\n";
-	printf("%s\n", line);
+	chunk = NULL;
+	step = 0;
 
-	LEX *lx;
-	lx = lexer(line);
-	if (lx == NULL) {
-		return 0;
+
+	while (strlen(stream) > 0) {
+		step = strcspn(stream, "\n");
+		int _EOL = strlen(stream) != step;	       
+		chunk = malloc(sizeof(char) * (step + _EOL));	
+       
+		memcpy(chunk, stream, step);
+		chunk[step] = '\n';
+		stream += step + _EOL;
+		
+		/*LEX *lx;
+		lx = lexer(chunk);
+		printf("%s:", lx->key);
+		printf("%s\n", lx->value);*/
+
+		
 	}
 
-	printf("%s:", lx->key);
-	printf("%s\n", lx->value);			
+	return;
+}
 
+/*void parse(char *file)
+{	
+	FILE *fp;
+	char *chunk;
+	size_t chunk_len;
+	
+	fp = fopen(file, "r");
+	if (fp == NULL) return;
+	
+	chunk = NULL;
+	
+	while (getline(&chunk, &chunk_len, fp) != -1) {
+
+		LEX *lx;
+		lx = lexer(chunk);
+		if (lx == NULL) return;
+
+		printf("%s", lx->key);
+		printf("%s\n", lx->value);			
+		
+		chunk = NULL;
+        }
+	fclose(fp);
+	
+	return;
+	}*/
+
+char *read_file(const char *file)
+{
+	FILE *fp;
+	long f_size;
+	char *stream;
+	
+	fp = NULL;
+	f_size = 0;
+	
+      	fp = fopen(file, "r");
+	if (fp == NULL) return NULL;
+
+	fseek(fp, 0L, SEEK_END);
+        f_size = ftell(fp);
+        fseek(fp, 0L, SEEK_SET);                               
+
+	stream = (char *)malloc(sizeof(char) * (f_size + 1));             
+        fread(stream, sizeof(char), f_size, fp);
+	fclose(fp);
+
+	stream[f_size] = '\0';	
+	return stream;
+}
+
+int main()
+{
+	//char *stream;
+	//stream = read_file("simple.json");
+
+	printf("%s\n\n", json);
+
+	parse(json);
 
 	return 0;
 }
