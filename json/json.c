@@ -100,7 +100,7 @@ LEX *lexer(char *chunk)
 
 int main()
 {
-	//printf("%s\n", json);
+	printf("%s\n", json);
 
 	//char *line = "\t\"name\":\"Awesome 4K\",\n";
 	char *line = "{\n";
