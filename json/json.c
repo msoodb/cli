@@ -70,22 +70,36 @@ LEX *lexer(char *chunk)
 	/* type */	
 	lx->type = 0;
 
-	//printf("%s\n", chunk);
-
-	/* key */
+	/* 
+	 * key 
+	 */
 	while(isspace((unsigned char)*chunk) || *chunk == '"') chunk++;
-	step = strcspn(chunk, "\"\n");
+	if (strlen(chunk) == 0) return NULL;
+	
+
+	step = strcspn(chunk, "\"\0");
+
 	lx->key = malloc(sizeof(char) * (step + 1));	
-	if (lx->key == NULL) {
-		return NULL;
-	}	
+	if (lx->key == NULL) return NULL;
+	
 	memcpy(lx->key, chunk, step);
 	lx->key[step] = '\0';
+
+	if (strlen(chunk) == 1){
+		lx->type = 0;
+		lx->value = NULL;
+		return lx;
+	}
 	chunk += step + 1;
 
-	/* value */
+		
+	/* 
+	 * value 
+	 */
 	while(isspace((unsigned char)*chunk) || *chunk == ':' || *chunk == '"') chunk++;
-	step = strcspn(chunk, "\",\n");
+	
+	
+	step = strcspn(chunk, "\",\0");
 	lx->value = malloc(sizeof(char) * (step + 1));
 	if (lx->value == NULL) {
 		return NULL;
@@ -103,23 +117,25 @@ void parse(const char *stream)
 
 	chunk = NULL;
 	step = 0;
+	
 
 
-	while (strlen(stream) > 0) {
-		step = strcspn(stream, "\n");
-		int _EOL = strlen(stream) != step;	       
-		chunk = malloc(sizeof(char) * (step + _EOL));	
-       
+	while (strlen(stream) > 0) {		
+		step = strcspn(stream, ",\n");
+		chunk = malloc(sizeof(char) * (step + 1));
 		memcpy(chunk, stream, step);
-		chunk[step] = '\n';
-		stream += step + _EOL;
+		chunk[step] = '\0';
+		stream += step + 1;
 		
-		/*LEX *lx;
+		LEX *lx;
 		lx = lexer(chunk);
-		printf("%s:", lx->key);
-		printf("%s\n", lx->value);*/
-
-		
+		if (lx != NULL) {
+			printf("%s", lx->key);
+			if (lx->value != NULL) {
+				printf(":%s", lx->value);
+			}
+			printf("\n");
+		}		
 	}
 
 	return;
@@ -178,12 +194,12 @@ char *read_file(const char *file)
 
 int main()
 {
-	//char *stream;
-	//stream = read_file("simple.json");
+	char *stream;
+	stream = read_file("simple.json");
 
-	printf("%s\n\n", json);
+	printf("%s", stream);
 
-	parse(json);
+	parse(stream);
 
 	return 0;
 }
