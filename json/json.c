@@ -97,13 +97,11 @@ LEX *lexer(char *chunk)
 	 * value 
 	 */
 	while(isspace((unsigned char)*chunk) || *chunk == ':' || *chunk == '"') chunk++;
-	
-	
+		
 	step = strcspn(chunk, "\",\0");
 	lx->value = malloc(sizeof(char) * (step + 1));
-	if (lx->value == NULL) {
-		return NULL;
-	}
+	if (lx->value == NULL) 	return NULL;
+	
 	memcpy(lx->value, chunk, step);
 	lx->value[step] = '\0';
 
@@ -111,7 +109,8 @@ LEX *lexer(char *chunk)
 }
 
 void parse(const char *stream)
-{	
+{
+	//printf("%s\n", stream);
 	char *chunk;
 	size_t step;
 
@@ -119,23 +118,26 @@ void parse(const char *stream)
 	step = 0;
 	
 
-
-	while (strlen(stream) > 0) {		
-		step = strcspn(stream, ",\n");
+	int i = 0;
+	while (strlen(stream) > 0) {
+	
+		step = strcspn(stream, ",");
 		chunk = malloc(sizeof(char) * (step + 1));
 		memcpy(chunk, stream, step);
 		chunk[step] = '\0';
+		
 		stream += step + 1;
+		
 		
 		LEX *lx;
 		lx = lexer(chunk);
 		if (lx != NULL) {
 			printf("%s", lx->key);
 			if (lx->value != NULL) {
-				printf(":%s", lx->value);
+				printf(": %s", lx->value);
 			}
 			printf("\n");
-		}		
+		}
 	}
 
 	return;
@@ -195,7 +197,7 @@ char *read_file(const char *file)
 int main()
 {
 	char *stream;
-	stream = read_file("simple.json");
+	stream = read_file("package-min.json");
 
 	printf("%s", stream);
 
