@@ -259,7 +259,7 @@ bool parenthes_balanced(char *exp)
 int main()
 {
 	char *stream;
-	stream = json_read_file("package-min.json");
+	stream = json_read_file("json/package-min.json");
 
 	//parse(stream);
 
@@ -277,7 +277,10 @@ int main()
 
 	JSON *node;
 	node = json_init_node("hello", "world!", 1);
+	
 	json_push(&list, node);
+
+	json_write_file("json/hello_world.json", list);
 
 
 	/* find */
@@ -290,7 +293,7 @@ int main()
 	//json_print_addr(list);
 
 
-	json_write_file("hello_world.json", list);
+	
 
 	return 0;
 }
