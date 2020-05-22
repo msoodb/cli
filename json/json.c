@@ -5,19 +5,14 @@
 #include <stdbool.h>
 
 
+/*
+ * stack node
+ */
 struct node
 {
 	char data;	
 	struct node *next;
-	
 };
-
-typedef struct _lex
-{
-	int type; // 0: object, 1: filed, 2: array 
-	char *key;
-	char *value;
-} LEX;
 
 typedef struct _json
 {
@@ -27,6 +22,16 @@ typedef struct _json
 } JSON;
 
 
+typedef struct _key_value
+{
+	char *key;
+	char *value;
+} KEY_VALUE;
+
+
+/* 
+ * stack push data 
+*/
 void push(struct node **ptrhead, char data)
 {
 	struct node *new = (struct node *)malloc(sizeof(struct node));
@@ -40,6 +45,9 @@ void push(struct node **ptrhead, char data)
 	(*ptrhead) = new;
 }
 
+/* 
+ * stack pop data 
+*/
 char pop(struct node **ptrhead)
 {
 	char data;
@@ -78,39 +86,33 @@ bool parenthes_balanced(char *exp)
  
 	struct node *stack = NULL; 
   
-	while (exp[i]) 
-	{ 
+	while (exp[i]){ 
 		if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
 			push(&stack, exp[i]); 
   
-		if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']') 
-		{ 
+		if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']'){ 
 			if (!is_match(pop(&stack), exp[i])) return 0;
 		} 
 		i++; 
 	} 
      
-	if (stack == NULL) 
-		return 1;
+	if (stack == NULL) return 1;
    
 	return 0;
 }
 
 
-LEX *lexer(char *chunk)
+KEY_VALUE *key_valuer(char *chunk)
 {
-	LEX *lx;
+	KEY_VALUE *kval;
 	size_t step;
 	
-	lx = malloc(sizeof(LEX) * 1);
-	if (lx == NULL) {
+	kval = malloc(sizeof(KEY_VALUE) * 1);
+	if (kval == NULL) {
 		return NULL;
 	}
 
 	
-	/* type */	
-	lx->type = 0;
-
 	/* 
 	 * key 
 	 */
@@ -120,11 +122,11 @@ LEX *lexer(char *chunk)
 
 	step = strcspn(chunk, "\"\0");
 
-	lx->key = malloc(sizeof(char) * (step + 1));	
-	if (lx->key == NULL) return NULL;
+	kval->key = malloc(sizeof(char) * (step + 1));	
+	if (kval->key == NULL) return NULL;
 	
-	memcpy(lx->key, chunk, step);
-	lx->key[step] = '\0';
+	memcpy(kval->key, chunk, step);
+	kval->key[step] = '\0';
 	chunk += step + 1;
 
 		
@@ -134,13 +136,13 @@ LEX *lexer(char *chunk)
 	while(isspace((unsigned char)*chunk) || *chunk == ':' || *chunk == '"') chunk++;
 		
 	step = strcspn(chunk, "\",\0");
-	lx->value = malloc(sizeof(char) * (step + 1));
-	if (lx->value == NULL) 	return NULL;
+	kval->value = malloc(sizeof(char) * (step + 1));
+	if (kval->value == NULL) return NULL;
 	
-	memcpy(lx->value, chunk, step);
-	lx->value[step] = '\0';
+	memcpy(kval->value, chunk, step);
+	kval->value[step] = '\0';
 
-	return lx;
+	return kval;
 }
 
 void parse(const char *stream)
@@ -163,12 +165,12 @@ void parse(const char *stream)
 		stream += step + 1;
 		
 		
-		LEX *lx;
-		lx = lexer(chunk);
-		if (lx != NULL) {
-			printf("%s", lx->key);
-			if (lx->value != NULL) {
-				printf(": %s", lx->value);
+		KEY_VALUE *kval;
+		kval = key_valuer(chunk);
+		if (kval != NULL) {
+			printf("%s", kval->key);
+			if (kval->value != NULL) {
+				printf(": %s", kval->value);
 			}
 			printf("\n");
 		}
