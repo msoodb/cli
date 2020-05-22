@@ -4,43 +4,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-static const char *json_tv =
-"{\n\
-\t\"name\": \"Awesome 4K\",\n\
-\t\"version\": \"0.1.0\",\n\
-\t\"private\": true,\n\
-\t\"resolutions\": [\n\
-\t\t{\n\
-\t\t\t\"width\": 1280,\n\
-\t\t\t\"height\": 720\n\
-\t\t}, \n\
-\t\t{\n\
-\t\t\t\"width\": 1920,\n\
-\t\t\t\"height\": 1080\n\
-\t\t}, \n\
-\t\t{\n\
-\t\t\t\"width\": 3840,\n\
-\t\t\t\"height\": 2160\n\
-\t\t}\n\
-\t],\n\
-\t\"eslintConfig\": {\n\
-\t\t\"root\": true,\n\
-\t\t\"env\": { \n\
-\t\t\t\"node\": true \n\
-\t\t}, \n\
-\t\t\"extends\": [ \n\
-\t\t\t\"plugin:vue/essential\", \n\
-\t\t\t\"eslint:recommended\"\n\
-\t\t],\n\
-\t\t\"parserOptions\": {\n\
-\t\t\t\"parser\": \"babel-eslint\"\n\
-\t\t},\n\
-\t\t\"rules\": {}\n\
-\t}\n\
-}";
-
-static const char *json =
-"{\n\t\"name\": \"Awesome 4K\",\n\t\"version\": \"0.1.0\",\n\t\"private\": true\n}";
 
 struct node
 {
@@ -100,43 +63,37 @@ char pop(struct node **ptrhead)
 */
 bool is_match(char character1, char character2) 
 { 
-	if (character1 == '(' && character2 == ')') 
-		return 1; 
-	if (character1 == '{' && character2 == '}') 
-		return 1; 
-	if (character1 == '[' && character2 == ']') 
-		return 1; 
+	if (character1 == '(' && character2 == ')') return 1; 
+	else if (character1 == '{' && character2 == '}') return 1; 
+	else if (character1 == '[' && character2 == ']') return 1; 
 	return 0; 
 }
 
 /*
   Return 1 if expression has balanced Parenthesis 
 */
-bool parenthes_balanced(char exp[]) 
+bool parenthes_balanced(char *exp) 
 { 
-   int i = 0; 
+	int i = 0; 
  
-   struct node *stack = NULL; 
+	struct node *stack = NULL; 
   
-   while (exp[i]) 
-   { 
-      if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
-        push(&stack, exp[i]); 
+	while (exp[i]) 
+	{ 
+		if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
+			push(&stack, exp[i]); 
   
-      if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']') 
-      { 
-         if (stack == NULL) 
-           return 0;  
-  
-         else if ( !is_match(pop(&stack), exp[i]) ) 
-           return 0; 
-      } 
-      i++; 
-   } 
+		if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']') 
+		{ 
+			if (!is_match(pop(&stack), exp[i])) return 0;
+		} 
+		i++; 
+	} 
      
-   if (stack == NULL) 
-     return 1;
-   return 0;
+	if (stack == NULL) 
+		return 1;
+   
+	return 0;
 }
 
 
@@ -246,13 +203,13 @@ char *read_file(const char *file)
 
 int main()
 {
-	/*char *stream;
-	stream = read_file("package-min.json");
+	char *stream;
+	stream = read_file("package.json");
 
-	parse(stream);*/
+	//parse(stream);
 
-	char exp[100] = "{()}[]"; 
-	if (parenthes_balanced(exp)) 
+	char *exp = "{()}[fghfgh sdgf(gfh{d}fgh)sdfg[]]"; 
+	if (parenthes_balanced(stream)) 
 		printf("Balanced \n"); 
 	else
 		printf("Not Balanced \n");   
