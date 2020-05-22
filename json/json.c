@@ -22,7 +22,6 @@
 
 typedef struct __json__
 {
-	struct __json__ *prev;	
 	struct __json__ *child;
 	struct __json__ *next;
 	char *key;
@@ -30,17 +29,11 @@ typedef struct __json__
 	int type;
 } JSON;
 
-typedef struct _key_value
-{
-	char *key;
-	char *value;
-} KEY_VALUE;
-
-
-
 #define IS_EMPTY_LIST(lsit)  ((list) == NULL)
 
-JSON *init_json_node(char *key, char *value, int type)
+
+
+JSON *json_init_node(char *key, char *value, int type)
 {
 	JSON *new = (JSON*) malloc(sizeof(JSON) * 1);
 	if (new == NULL) return NULL;
@@ -74,23 +67,16 @@ JSON *json_pop(JSON **list)
 	return current;
 }
 
-/*void print(JSON *list)
-{
-	int node_number = 0;
+JSON *json_find(JSON *list, char *key)
+{	
 	while (list != NULL) {
-
-		printf("\t\t%s\n", " ---------------------");
-		printf("%8d", list);
-		printf("\t%s %8d", "|", list->prev);
-		printf("%s", " | ");
-		printf("%8d %s\n", list->next, "|");
-		printf("\t\t%s\n\n", " ---------------------");		
-
+		if (strcmp(list->key, key) == 0) return list;
 		list = list->next;
-	}	
-	}*/
+	}
+	return NULL;
+}
 
-void print(JSON *list)
+void json_print(JSON *list)
 {
 	int node_number = 0;
 	while (list != NULL) {
@@ -100,46 +86,22 @@ void print(JSON *list)
 	}	
 }
 
+void json_print_addr(JSON *list)
+{
+	int node_number = 0;
+	while (list != NULL) {
 
+		printf("\t%s\n", "  ----------");
+		printf("%8d", list);
+		printf("%s", " | ");
+		printf("%8d %s\n", list->next, "|");
+		printf("\t%s\n\n", "  ----------");		
 
-
-/* 
-   Returns 1 if character1 and character2 
-   are matching left and right Parenthesis
-*/
-bool is_match(char character1, char character2) 
-{ 
-	if (character1 == '(' && character2 == ')') return 1; 
-	else if (character1 == '{' && character2 == '}') return 1; 
-	else if (character1 == '[' && character2 == ']') return 1; 
-	return 0; 
+		list = list->next;
+	}	
 }
 
-/*
-  Return 1 if expression has balanced Parenthesis 
-*/
-bool parenthes_balanced(char *exp) 
-{ 
-	int i = 0; 
- 
-	struct stack_node *stack = NULL; 
-  
-	while (exp[i]){ 
-		if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
-			stack_push(&stack, exp[i]); 
-  
-		if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']'){ 
-			if (!is_match(stack_pop(&stack), exp[i])) return 0;
-		} 
-		i++; 
-	} 
-     
-	if (stack == NULL) return 1;
-   
-	return 0;
-}
-
-JSON *lexer(char *chunk)
+JSON *json_lexer(char *chunk)
 {
 	JSON *node;
 	size_t step;
@@ -183,12 +145,12 @@ JSON *lexer(char *chunk)
 	memcpy(value, chunk, step);
 	value[step] = '\0';
 
-	node = init_json_node(key, value, type);
+	node = json_init_node(key, value, type);
 
 	return node;
 }
 
-JSON *parse(const char *stream)
+JSON *json_parse(const char *stream)
 {
 	char *chunk;
 	size_t step;
@@ -209,14 +171,14 @@ JSON *parse(const char *stream)
 		
 		stream += step + 1;
 				
-		node = lexer(chunk);
+		node = json_lexer(chunk);
 		json_push(&list, node);
 	}
 
 	return list;
 }
 
-char *read_file(const char *file)
+char *json_read_file(const char *file)
 {
 	FILE *fp;
 	long f_size;
@@ -240,10 +202,39 @@ char *read_file(const char *file)
 	return stream;
 }
 
+bool is_match(char character1, char character2) 
+{ 
+	if (character1 == '(' && character2 == ')') return 1; 
+	else if (character1 == '{' && character2 == '}') return 1; 
+	else if (character1 == '[' && character2 == ']') return 1; 
+	return 0; 
+}
+
+bool parenthes_balanced(char *exp) 
+{ 
+	int i = 0; 
+ 
+	struct stack_node *stack = NULL; 
+  
+	while (exp[i]){ 
+		if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
+			stack_push(&stack, exp[i]); 
+  
+		if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']'){ 
+			if (!is_match(stack_pop(&stack), exp[i])) return 0;
+		} 
+		i++; 
+	} 
+     
+	if (stack == NULL) return 1;
+   
+	return 0;
+}
+
 int main()
 {
 	char *stream;
-	stream = read_file("package-min.json");
+	stream = json_read_file("package-min.json");
 
 	//parse(stream);
 
@@ -256,16 +247,20 @@ int main()
 
 	JSON *list = NULL;
 	
-	list = parse(stream);
-	print(list);
-
-	printf("%s\n", "-----------------------------");
+	list = json_parse(stream);
+	json_print(list);
 
 	JSON *node;
-	node = init_json_node("name", "masoud", 1);
+	node = json_init_node("name", "masoud", 1);
 	json_push(&list, node);
+
+	JSON *nodef = NULL;
+	nodef = json_find(list, "@vue/cli-service");
+	if (nodef != NULL) {
+		printf("%s\n", nodef->value);
+	}
 	
-	print(list);
+	//json_print_addr(list);
 
 	return 0;
 }
