@@ -78,7 +78,6 @@ JSON *json_find(JSON *list, char *key)
 
 void json_print(JSON *list)
 {
-	int node_number = 0;
 	while (list != NULL) {
 		printf("%s:", list->key);
 		printf("%s\n", list->value);
@@ -88,7 +87,6 @@ void json_print(JSON *list)
 
 void json_print_addr(JSON *list)
 {
-	int node_number = 0;
 	while (list != NULL) {
 
 		printf("\t%s\n", "  ----------");
@@ -202,6 +200,29 @@ char *json_read_file(const char *file)
 	return stream;
 }
 
+void json_write_file(char *file, JSON *list)
+{
+	FILE *fp;
+	fp = fopen(file, "w");
+	if(fp == NULL) return;
+
+	bool comma;
+	comma = false;
+	
+	fprintf(fp, "%c\n", '{');
+	while (list != NULL) {
+		if (comma) fprintf(fp, "%c\n", ',');
+		fprintf(fp, "\t");
+		fprintf(fp, "\"%s\":", list->key);
+		fprintf(fp, " \"%s\"", list->value);
+		comma = true;
+		list = list->next;
+	}
+	fprintf(fp, "\n%c\n", '}');
+
+	fclose(fp);
+}
+
 bool is_match(char character1, char character2) 
 { 
 	if (character1 == '(' && character2 == ')') return 1; 
@@ -254,13 +275,18 @@ int main()
 	node = json_init_node("name", "masoud", 1);
 	json_push(&list, node);
 
-	JSON *nodef = NULL;
+
+	/* find */
+	/*JSON *nodef = NULL;
 	nodef = json_find(list, "@vue/cli-service");
 	if (nodef != NULL) {
 		printf("%s\n", nodef->value);
-	}
+		}*/
 	
 	//json_print_addr(list);
+
+
+	json_write_file("test.json", list);
 
 	return 0;
 }
