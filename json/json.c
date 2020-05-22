@@ -45,7 +45,6 @@ JSON *init_json_node(char *key, char *value, int type)
 	JSON *new = (JSON*) malloc(sizeof(JSON) * 1);
 	if (new == NULL) return NULL;
 	
-	new->prev = NULL;
 	new->child = NULL;
 	new->next = NULL;
 
@@ -61,10 +60,7 @@ void json_push(JSON **list, JSON *node)
 	JSON *current = *list;
 	*list = node;
 
-	node->next = current;
-	if (current) {
-		current->prev = node;
-	}
+	node->next = current;	
 }
 
 JSON *json_pop(JSON **list)
@@ -74,9 +70,6 @@ JSON *json_pop(JSON **list)
 	JSON *current = *list;
 
 	*list = (*list)->next;
-	if (*list) {
-		(*list)->prev = NULL;
-	}
 	
 	return current;
 }
@@ -264,6 +257,14 @@ int main()
 	JSON *list = NULL;
 	
 	list = parse(stream);
+	print(list);
+
+	printf("%s\n", "-----------------------------");
+
+	JSON *node;
+	node = init_json_node("name", "masoud", 1);
+	json_push(&list, node);
+	
 	print(list);
 
 	return 0;
