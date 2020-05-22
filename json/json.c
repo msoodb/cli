@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 static const char *json_tv =
 "{\n\
@@ -41,6 +42,12 @@ static const char *json_tv =
 static const char *json =
 "{\n\t\"name\": \"Awesome 4K\",\n\t\"version\": \"0.1.0\",\n\t\"private\": true\n}";
 
+struct node
+{
+	char data;	
+	struct node *next;
+	
+};
 
 typedef struct _lex
 {
@@ -55,6 +62,83 @@ typedef struct _json
 	struct _json *child;
 	struct _json *next;	
 } JSON;
+
+
+void push(struct node **ptrhead, char data)
+{
+	struct node *new = (struct node *)malloc(sizeof(struct node));
+	if (new == NULL) {
+		printf("out of memory!\n");
+		return;
+	}
+	new->data = data;
+	new->next = (*ptrhead);
+
+	(*ptrhead) = new;
+}
+
+char pop(struct node **ptrhead)
+{
+	char data;
+	struct node *top;
+	if (*ptrhead == NULL) {
+		return 0;
+	}
+
+	top = *ptrhead;	
+	data = top->data;	
+	*ptrhead = top->next;
+	free(top);
+	
+	return data;
+}
+
+
+/* 
+   Returns 1 if character1 and character2 
+   are matching left and right Parenthesis
+*/
+bool is_match(char character1, char character2) 
+{ 
+	if (character1 == '(' && character2 == ')') 
+		return 1; 
+	if (character1 == '{' && character2 == '}') 
+		return 1; 
+	if (character1 == '[' && character2 == ']') 
+		return 1; 
+	return 0; 
+}
+
+/*
+  Return 1 if expression has balanced Parenthesis 
+*/
+bool parenthes_balanced(char exp[]) 
+{ 
+   int i = 0; 
+ 
+   struct node *stack = NULL; 
+  
+   while (exp[i]) 
+   { 
+      if (exp[i] == '{' || exp[i] == '(' || exp[i] == '[') 
+        push(&stack, exp[i]); 
+  
+      if (exp[i] == '}' || exp[i] == ')' || exp[i] == ']') 
+      { 
+         if (stack == NULL) 
+           return 0;  
+  
+         else if ( !is_match(pop(&stack), exp[i]) ) 
+           return 0; 
+      } 
+      i++; 
+   } 
+     
+   if (stack == NULL) 
+     return 1;
+   return 0;
+}
+
 
 LEX *lexer(char *chunk)
 {
@@ -84,12 +168,6 @@ LEX *lexer(char *chunk)
 	
 	memcpy(lx->key, chunk, step);
 	lx->key[step] = '\0';
-
-	if (strlen(chunk) == 1){
-		lx->type = 0;
-		lx->value = NULL;
-		return lx;
-	}
 	chunk += step + 1;
 
 		
@@ -110,7 +188,6 @@ LEX *lexer(char *chunk)
 
 void parse(const char *stream)
 {
-	//printf("%s\n", stream);
 	char *chunk;
 	size_t step;
 
@@ -143,33 +220,6 @@ void parse(const char *stream)
 	return;
 }
 
-/*void parse(char *file)
-{	
-	FILE *fp;
-	char *chunk;
-	size_t chunk_len;
-	
-	fp = fopen(file, "r");
-	if (fp == NULL) return;
-	
-	chunk = NULL;
-	
-	while (getline(&chunk, &chunk_len, fp) != -1) {
-
-		LEX *lx;
-		lx = lexer(chunk);
-		if (lx == NULL) return;
-
-		printf("%s", lx->key);
-		printf("%s\n", lx->value);			
-		
-		chunk = NULL;
-        }
-	fclose(fp);
-	
-	return;
-	}*/
-
 char *read_file(const char *file)
 {
 	FILE *fp;
@@ -196,12 +246,16 @@ char *read_file(const char *file)
 
 int main()
 {
-	char *stream;
+	/*char *stream;
 	stream = read_file("package-min.json");
 
-	printf("%s", stream);
+	parse(stream);*/
 
-	parse(stream);
+	char exp[100] = "{()}[]"; 
+	if (parenthes_balanced(exp)) 
+		printf("Balanced \n"); 
+	else
+		printf("Not Balanced \n");   
 
 	return 0;
 }
