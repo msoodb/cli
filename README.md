@@ -1,4 +1,4 @@
-# cli   
+# cli program
 C command line application template.
 
 > cli \
