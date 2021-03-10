@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 			break;
 		case ':':
 			printf("%s: %s %c\n", _PROGRAM_NAME, "missing arg for", optopt);
-			printf("%s\n", "Try 'cmock --help' for more information.");
+			printf("%s %s %s\n", "Try '", _PROGRAM_NAME, "--help' for more information.");
 			exit(EXIT_FAILURE);
 			break;
 		}
