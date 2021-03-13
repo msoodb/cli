@@ -1,3 +1,9 @@
+
+# THIS PROJECT IS NO LONGER VALID!!!
+# Check arenac project.
+
+
+
 # cli program
 C command line application template.
 
